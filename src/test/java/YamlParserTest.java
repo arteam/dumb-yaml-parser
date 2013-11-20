@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -48,9 +49,9 @@ public class YamlParserTest {
         YamlMap yamlMap = parser.parse(file("/test3.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
-            put("ter", new YamlMap(new HashMap<String, YamlObject>(){{
+            put("ter", new YamlMap(new HashMap<String, YamlObject>() {{
                 put("ber", new YamlPrimitive("1"));
-                put("gfer", new YamlMap(new HashMap<String, YamlObject>(){{
+                put("gfer", new YamlMap(new HashMap<String, YamlObject>() {{
                     put("tger", new YamlPrimitive("2"));
                 }}));
             }}));
@@ -63,12 +64,12 @@ public class YamlParserTest {
         YamlMap yamlMap = parser.parse(file("/test4.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
-            put("data_bases", new YamlMap(new HashMap<String, YamlObject>(){{
-                put("cms", new YamlMap(new HashMap<String, YamlObject>(){{
+            put("data_bases", new YamlMap(new HashMap<String, YamlObject>() {{
+                put("cms", new YamlMap(new HashMap<String, YamlObject>() {{
                     put("db_driver", new YamlPrimitive("Post gres"));
                     put("url", new YamlPrimitive("52.15:cms"));
                 }}));
-                put("sms", new YamlMap(new HashMap<String, YamlObject>(){{
+                put("sms", new YamlMap(new HashMap<String, YamlObject>() {{
                     put("db_driver", new YamlPrimitive("Post gres"));
                     put("url", new YamlPrimitive("52.15:sms"));
                 }}));
@@ -97,6 +98,32 @@ public class YamlParserTest {
     public void testInvalidYaml2()  {
         parser.parse(file("/invalid2.yml"));
     }
+
+    @Test
+    public void testList()  {
+        YamlMap yamlMap = parser.parse(file("/test6.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("ids", new YamlList(new ArrayList<YamlObject>(){{
+                add(new YamlPrimitive("1"));
+                add(new YamlPrimitive("2"));
+                add(new YamlPrimitive("3"));
+            }}));
+        }})));
+    }
+
+    @Test
+    public void testInnerMap()  {
+        YamlMap yamlMap = parser.parse(file("/test7.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("args", new YamlMap(new HashMap<String, YamlObject>() {{
+                put("name", new YamlPrimitive("art"));
+                put("pass", new YamlPrimitive("wolf"));
+            }}));
+        }})));
+    }
+
 
     private static String file(String fileName) {
         String file = YamlParserTest.class.getResource(fileName).getFile();

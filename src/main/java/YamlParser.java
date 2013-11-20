@@ -40,8 +40,7 @@ public class YamlParser {
         String value = matcher.group(3);
         if (amountDelimiters > rootDelimiters) {
             if (!value.isEmpty()) {
-                map.put(key, new YamlPrimitive(value));
-                return new ParserNewStep(true, pos + 1);
+                return parsePrimitive(pos, map, key, value);
             } else {
                 Map<String, YamlObject> childMap = new HashMap<>();
                 // While not ended iterate
@@ -58,5 +57,29 @@ public class YamlParser {
             }
         }
         return new ParserNewStep(false, pos);
+    }
+
+    private ParserNewStep parsePrimitive(int pos, Map<String, YamlObject> map, String key, String value) {
+        if (value.startsWith("[") && value.endsWith("]")) {
+            String[] split = value.substring(1, value.length() - 1).split(",");
+            List<YamlObject> list = new ArrayList<>();
+            for (String s : split) {
+                list.add(new YamlPrimitive(s.trim()));
+            }
+            map.put(key, new YamlList(list));
+        } else if (value.startsWith("{") && value.endsWith("}")) {
+            String[] split = value.substring(1, value.length() - 1).split(",");
+            Map<String, YamlObject> childMap = new HashMap<>();
+            for (String s : split) {
+                String[] keyValue = s.split(":");
+                String childKey = keyValue[0].trim();
+                String childValue = keyValue[1].trim();
+                childMap.put(childKey, new YamlPrimitive(childValue));
+            }
+            map.put(key, new YamlMap(childMap));
+        } else {
+            map.put(key, new YamlPrimitive(value));
+        }
+        return new ParserNewStep(true, pos + 1);
     }
 }
