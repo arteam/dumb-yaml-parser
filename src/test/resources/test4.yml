@@ -1,0 +1,7 @@
+data_bases:
+   cms :
+      db_driver : Post gres
+      url : 52.15:cms
+   sms :
+      db_driver: Post gres
+      url: 52.15:sms
