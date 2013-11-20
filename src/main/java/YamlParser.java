@@ -43,14 +43,16 @@ public class YamlParser {
                 map.put(key, new YamlPrimitive(value));
                 return new ParserNewStep(true, pos + 1);
             } else {
-                Map<String, YamlObject> childMap = new HashMap<String, YamlObject>();
+                Map<String, YamlObject> childMap = new HashMap<>();
                 // While not ended iterate
                 ParserNewStep newStep;
-                int nextPos = pos+1;
+                int nextPos = pos + 1;
                 do {
                     newStep = analyze(lines, nextPos, amountDelimiters, childMap);
                     nextPos = newStep.pos;
                 } while (newStep.ifContinue);
+                if (childMap.isEmpty())
+                    throw new IllegalArgumentException("Key " + key + " hasn't got values");
                 map.put(key, new YamlMap(childMap));
                 return new ParserNewStep(true, nextPos);
             }

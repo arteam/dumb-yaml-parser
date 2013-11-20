@@ -76,6 +76,28 @@ public class YamlParserTest {
         }})));
     }
 
+    @Test
+    public void testDifferentTextFormat()  {
+        YamlMap yamlMap = parser.parse(file("/test5.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("name", new YamlPrimitive("\"foo\""));
+            put("email", new YamlPrimitive("foo@mail.com"));
+            put("age", new YamlPrimitive("12"));
+            put("birth", new YamlPrimitive("Jun 01, 1985"));
+        }})));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidYaml()  {
+         parser.parse(file("/invalid.yml"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testInvalidYaml2()  {
+        parser.parse(file("/invalid2.yml"));
+    }
+
     private static String file(String fileName) {
         String file = YamlParserTest.class.getResource(fileName).getFile();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
