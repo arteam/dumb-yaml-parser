@@ -1,0 +1,6 @@
+key: # it's key
+# submodules
+    root: test         # It's subkey
+    end: val
+
+man: [page23, page34]
