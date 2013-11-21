@@ -15,6 +15,10 @@ public class YamlMap implements YamlObject {
         this.map = map;
     }
 
+    public Map<String, YamlObject> getMap() {
+        return map;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof YamlMap) {
