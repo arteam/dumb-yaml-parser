@@ -10,7 +10,8 @@ import java.util.regex.Pattern;
  */
 public class YamlParser {
 
-    private static final Pattern PATTERN = Pattern.compile("(\\s*)(\\S+)\\s*:+\\s*(.*)");
+    private static final Pattern PATTERN = Pattern.compile("^(\\s*)(\\S+)\\s*:+\\s*([^#]*).*$");
+    private static final Pattern COMMENT = Pattern.compile("\\d*#.*");
 
     public YamlMap parse(String yaml) {
         List<String> lines = Arrays.asList(yaml.split("\n"));
@@ -32,12 +33,15 @@ public class YamlParser {
         if (pos > lines.size() - 1) return new ParserNewStep(false, pos);
         String line = lines.get(pos);
         Matcher matcher = PATTERN.matcher(line);
-        if (!matcher.find())
-            // Don't analyze lists yet
+        if (!matcher.find()) {
+            if (line.trim().isEmpty() || COMMENT.matcher(line).find()) {
+                return new ParserNewStep(true, pos + 1);
+            }
             throw new IllegalArgumentException("Bad line: " + line);
+        }
         int amountDelimiters = matcher.group(1).length();
         String key = matcher.group(2);
-        String value = matcher.group(3);
+        String value = matcher.group(3).trim();
         if (amountDelimiters > rootDelimiters) {
             if (!value.isEmpty()) {
                 return parsePrimitive(pos, map, key, value);

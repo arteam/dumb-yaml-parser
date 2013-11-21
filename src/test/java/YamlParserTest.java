@@ -124,6 +124,22 @@ public class YamlParserTest {
         }})));
     }
 
+    @Test
+    public void testComments()  {
+        YamlMap yamlMap = parser.parse(file("/test8.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("key", new YamlMap(new HashMap<String, YamlObject>() {{
+                put("root", new YamlPrimitive("test"));
+                put("end", new YamlPrimitive("val"));
+            }}));
+            put("man", new YamlList(new ArrayList<YamlObject>(){{
+                add(new YamlPrimitive("page23"));
+                add(new YamlPrimitive("page34"));
+            }}));
+        }})));
+    }
+
 
     private static String file(String fileName) {
         String file = YamlParserTest.class.getResource(fileName).getFile();
