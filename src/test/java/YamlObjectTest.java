@@ -6,11 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
 
 /**
  * Date: 11/20/13
@@ -23,10 +20,19 @@ public class YamlObjectTest {
     ObjectParser parser = new ObjectParser();
 
     @Test
-    public void testParseBaseYaml()  {
-        TestObject test = parser.parse(file("/test.yml"), TestObject.class);
+    public void testParseStringPrimitives()  {
+        StringPrimitives test = parser.parse(file("/test.yml"), StringPrimitives.class);
         System.out.println(test);
-        Assert.assertEquals(test, new TestObject("val", "talk"));
+        Assert.assertEquals(test, new StringPrimitives("val", "talk"));
+    }
+
+    @Test
+    public void testParseNumbericPrimitives()  {
+        NumericPrimitives test = parser.parse(file("/test9.yml"), NumericPrimitives.class);
+        System.out.println(test);
+        Assert.assertThat(test, equalTo(
+                new NumericPrimitives(21341241234123412L, 12121232341231231L, -1233, -3322,
+                        1231231.234412421312d, 2344542.123544322323d, -323.121f, -111.333f, false, true)));
     }
 
 
