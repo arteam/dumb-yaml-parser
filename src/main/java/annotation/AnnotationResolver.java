@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class AnnotationResolver {
 
-    public Map<String,ParamInfo> lookupParameterNames( Constructor<?> constructor) {
+    public Map<String, ParamInfo> lookupParameterNames(Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
         Annotation[][] anns = constructor.getParameterAnnotations();
 
@@ -26,10 +26,15 @@ public class AnnotationResolver {
         for (int i = 0; i < types.length; i++) {
             for (int j = 0; j < anns[i].length; j++) {
                 Annotation ann = anns[i][j];
-                if (isNamed(ann)) {
-                    paramTypes.put(getNamedValue(ann), new ParamInfo(i, types[i]));
-                    break;
+                if (!isNamed(ann)) continue;
+
+                String namedValue = getNamedValue(ann);
+                if (paramTypes.containsKey(namedValue)) {
+                    throw new IllegalArgumentException("Constructor " + constructor +
+                            " has 2 params with the same name name=" + namedValue);
                 }
+                paramTypes.put(namedValue, new ParamInfo(i, types[i]));
+                break;
             }
         }
         return paramTypes;

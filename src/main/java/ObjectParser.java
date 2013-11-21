@@ -1,14 +1,7 @@
 import annotation.AnnotationResolver;
-import annotation.Name;
 import annotation.ParamInfo;
-import com.thoughtworks.paranamer.CachingParanamer;
-import com.thoughtworks.paranamer.Paranamer;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.lang.reflect.Constructor;
 import java.util.Map;
 
 /**
@@ -39,13 +32,9 @@ public class ObjectParser {
             YamlObject value = entry.getValue();
             if (value instanceof YamlPrimitive) {
                 YamlPrimitive primitive = (YamlPrimitive) value;
-
                 ParamInfo paramInfo = argNameTypes.get(key);
-                Class type = paramInfo.getType();
-                Object injected = null;
-                if (type.equals(String.class)) {
-                    injected = primitive.getValue();
-                }
+                Class<?> type = paramInfo.getType();
+                Object injected = primitive.cast(type);
                 initArgs[paramInfo.getPos()] = injected;
             }
         }
