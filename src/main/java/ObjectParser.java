@@ -96,13 +96,32 @@ public class ObjectParser {
         return initArgs;
     }
 
+    @SuppressWarnings("all")
     private Object getTyped(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
         if (yamlObject instanceof YamlPrimitive) {
             YamlPrimitive primitive = (YamlPrimitive) yamlObject;
             return primitive.cast(type);
         } else if (yamlObject instanceof YamlMap) {
             YamlMap yamlMap = (YamlMap) yamlObject;
-            return parse(yamlMap, type);
+            // If inner map
+            if (Map.class.isAssignableFrom(type)) {
+                Map<Object, Object> map = new HashMap<>();
+                for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
+                    String key = entry.getKey();
+                    YamlObject value = entry.getValue();
+                    if (!actualTypes[0].equals(String.class)) {
+                        throw new IllegalArgumentException("Maps can have only Strings as keys, not " + actualTypes[0]);
+                    }
+                    Type actualType = actualTypes[1];  // Value type
+                    Type[] subTypes = actualType instanceof ParameterizedType ?
+                            ((ParameterizedType) actualType).getActualTypeArguments() :
+                            new Type[]{actualType};
+                    map.put(key, getTyped(value, (Class<?>) actualType, subTypes));
+                }
+                return map;
+            } else {
+                return parse(yamlMap, type);
+            }
         } else if (yamlObject instanceof YamlList) {
             YamlList yamlList = (YamlList) yamlObject;
             if (!Collection.class.isAssignableFrom(type)) {

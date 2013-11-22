@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -68,6 +69,16 @@ public class YamlObjectTest {
         IdList test = parser.parse(file("/test6.yml"), IdList.class);
         System.out.println(test);
         Assert.assertEquals(test, new IdList(Arrays.asList(1,2,3)));
+    }
+
+    @Test
+    public void testInnerMap()  {
+        DBConfig test = parser.parse(file("/test4.yml"), DBConfig.class);
+        System.out.println(test);
+        Assert.assertEquals(test, new DBConfig(new HashMap<String, DBConfig.Database>(){{
+            put("cms", new DBConfig.Database("Post gres", "52.15:cms"));
+            put("sms", new DBConfig.Database("Post gres", "52.15:sms"));
+        }}));
     }
 
     private static String file(String fileName) {
