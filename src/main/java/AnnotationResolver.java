@@ -27,6 +27,7 @@ public class AnnotationResolver {
 
         Map<String, ParamInfo> paramTypes = new LinkedHashMap<>();
         for (int i = 0; i < types.length; i++) {
+            boolean hasNameAnnotation = false;
             for (int j = 0; j < anns[i].length; j++) {
                 Annotation ann = anns[i][j];
                 if (!isNamed(ann)) continue;
@@ -39,7 +40,11 @@ public class AnnotationResolver {
 
                 Type[] actualTypes = typesUtil.getActualTypes(genericTypes[i]);
                 paramTypes.put(namedValue, new ParamInfo(i, types[i], actualTypes));
+                hasNameAnnotation = true;
                 break;
+            }
+            if (!hasNameAnnotation) {
+                throw new IllegalArgumentException("Name not set for " + (i + 1) + " param in " + constructor);
             }
         }
         return paramTypes;

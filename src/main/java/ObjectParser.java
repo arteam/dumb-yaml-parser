@@ -51,7 +51,7 @@ public class ObjectParser {
             }
             return instance;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Unable inject fields to " + constructor.getDeclaringClass(), e);
         }
     }
 
@@ -60,9 +60,15 @@ public class ObjectParser {
 
         Object[] args = new Object[argNameTypes.size()];
         for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
-            ParamInfo paramInfo = argNameTypes.get(entry.getKey());
+            // Remove for checking that all arguments have been set
+            ParamInfo paramInfo = argNameTypes.remove(entry.getKey());
+            if (paramInfo == null) continue;
+
             Object valueToInject = typedValue(entry.getValue(), paramInfo.getType(), paramInfo.getActualTypes());
             args[paramInfo.getPos()] = valueToInject;
+        }
+        if (!argNameTypes.isEmpty()) {
+            throw new IllegalArgumentException(argNameTypes.keySet() + " are not set for " + constructor);
         }
         return constructors.newInstance(constructor, args);
     }
@@ -74,7 +80,7 @@ public class ObjectParser {
             YamlPrimitive primitive = (YamlPrimitive) yamlObject;
             return primitive.cast(type);
         } else if (yamlObject instanceof YamlMap) {
-            return typedMap((YamlMap) yamlObject, type, actualTypes);
+            return typedMap(yamlObject, type, actualTypes);
         } else if (yamlObject instanceof YamlList) {
             return typedList(yamlObject, type, actualTypes);
         }
@@ -101,11 +107,8 @@ public class ObjectParser {
         }
     }
 
-    private Object typedList(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
+    private Collection<Object> typedList(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
         YamlList yamlList = (YamlList) yamlObject;
-        if (!Collection.class.isAssignableFrom(type)) {
-            throw new IllegalArgumentException(yamlList + " is not assignable to " + type);
-        }
         Collection<Object> collection = newCollection(type);
         for (YamlObject subObject : yamlList.getList()) {
             Type actualType = actualTypes[0];
@@ -114,7 +117,18 @@ public class ObjectParser {
         return collection;
     }
 
+    @SuppressWarnings("unchecked")
     private Collection<Object> newCollection(Class<?> type) {
+        if (!Collection.class.isAssignableFrom(type)) {
+            throw new IllegalArgumentException(type + " is not collection");
+        }
+        if (!type.isInterface()) {
+            try {
+                return (Collection<Object>) type.newInstance();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
         if (List.class.isAssignableFrom(type)) {
             return new ArrayList<>();
         } else if (Set.class.isAssignableFrom(type)) {
