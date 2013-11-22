@@ -55,6 +55,12 @@ public class YamlObjectTest {
                         1231231.234412421312d, 2344542.123544322323d, -323.121f, -111.333f, false, true)));
     }
 
+    @Test
+    public void testMapInject()  {
+        MapInject test = parser.parse(file("/test2.yml"), MapInject.class);
+        System.out.println(test);
+        Assert.assertEquals(test, new MapInject(new MapInject.Key(1, 2), "talk"));
+    }
 
     private static String file(String fileName) {
         String file = YamlObjectTest.class.getResource(fileName).getFile();

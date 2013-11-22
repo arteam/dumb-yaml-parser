@@ -2,6 +2,7 @@ package annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ public class AnnotationResolver {
 
     public Map<String, ParamInfo> lookupParameterNames(Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
+        Type[] genericParameterTypes = constructor.getGenericParameterTypes();
         Annotation[][] anns = constructor.getParameterAnnotations();
 
         if (types.length == 0) {
