@@ -1,5 +1,4 @@
 import annotation.Name;
-import annotation.ParamInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -103,6 +102,9 @@ public class ObjectParser {
             }
             return map;
         } else {
+            if (type.isPrimitive() || type.isArray() || type.getName().startsWith("java.")) {
+                throw new IllegalArgumentException("Class " + type + " cannot be represented as map");
+            }
             return parse(yamlMap, type);
         }
     }
@@ -120,7 +122,7 @@ public class ObjectParser {
     @SuppressWarnings("unchecked")
     private Collection<Object> newCollection(Class<?> type) {
         if (!Collection.class.isAssignableFrom(type)) {
-            throw new IllegalArgumentException(type + " is not collection");
+            throw new IllegalArgumentException("Unable assign collection to " + type);
         }
         if (!type.isInterface()) {
             try {

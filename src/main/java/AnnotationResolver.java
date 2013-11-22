@@ -1,5 +1,4 @@
 import annotation.Name;
-import annotation.ParamInfo;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

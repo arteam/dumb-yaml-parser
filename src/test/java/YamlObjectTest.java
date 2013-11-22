@@ -96,6 +96,16 @@ public class YamlObjectTest {
         parser.parse(file("/test.yml"), TooManyConstructors.class);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongType()  {
+        parser.parse(file("/test6.yml"), IdListWrongType.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMapTypeFail()  {
+        parser.parse(file("/test2.yml"), StringPrimitives.class);
+    }
+
     private static String file(String fileName) {
         String file = YamlObjectTest.class.getResource(fileName).getFile();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
