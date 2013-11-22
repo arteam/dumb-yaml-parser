@@ -27,7 +27,27 @@ public class YamlObjectTest {
     }
 
     @Test
-    public void testParseNumbericPrimitives()  {
+    public void testInjectByFields()  {
+        StringPrimitivesPlain test = parser.parse(file("/test.yml"), StringPrimitivesPlain.class);
+        System.out.println(test);
+        StringPrimitivesPlain plain = new StringPrimitivesPlain();
+        plain.setKey("val");
+        plain.setTrash("talk");
+        Assert.assertEquals(test, plain);
+    }
+
+    @Test
+    public void testInjectByFieldsWithAnnotation()  {
+        StringPrimitivesAnnotation test = parser.parse(file("/test.yml"), StringPrimitivesAnnotation.class);
+        System.out.println(test);
+        StringPrimitivesAnnotation plain = new StringPrimitivesAnnotation();
+        plain.setKeyValue("val");
+        plain.setTrashValue("talk");
+        Assert.assertEquals(test, plain);
+    }
+
+    @Test
+    public void testParseNumericPrimitives()  {
         NumericPrimitives test = parser.parse(file("/test9.yml"), NumericPrimitives.class);
         System.out.println(test);
         Assert.assertThat(test, equalTo(
