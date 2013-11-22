@@ -6,9 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Date: 11/21/13
@@ -107,19 +105,23 @@ public class ObjectParser {
             return parse(yamlMap, type);
         } else if (yamlObject instanceof YamlList) {
             YamlList yamlList = (YamlList) yamlObject;
-            Collection<Object> list = new ArrayList<>();
+            if (!Collection.class.isAssignableFrom(type)) {
+                throw new IllegalArgumentException(yamlList + " is not assignable to " + type);
+            }
+            Collection<Object> list;
+            if (List.class.isAssignableFrom(type)) {
+                list = new ArrayList<>();
+            } else if (Set.class.isAssignableFrom(type)) {
+                list = new HashSet<>();
+            } else {
+                throw new IllegalStateException("Unknown type " + type);
+            }
             for (YamlObject subObject : yamlList.getList()) {
-                Type actualType;
-                Type[] subTypes;
-                if (actualTypes != null && actualTypes.length > 0) {
-                    actualType = actualTypes[0];
-                    subTypes = new Type[actualTypes.length - 1];
-                    System.arraycopy(actualTypes, 1, subTypes, 0, actualTypes.length - 1);
-                } else {
-                    actualType = String.class;
-                    subTypes = null;
-                }
-                list.add(getTyped(subObject, (Class) actualType, subTypes));
+                Type actualType = actualTypes[0];
+                Type[] subTypes = actualType instanceof ParameterizedType ?
+                        ((ParameterizedType) actualType).getActualTypeArguments() :
+                        new Type[]{actualType};
+                list.add(getTyped(subObject, (Class<?>) actualType, subTypes));
             }
             return list;
         }
