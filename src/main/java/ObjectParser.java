@@ -1,10 +1,8 @@
-import annotation.AnnotationResolver;
 import annotation.Name;
 import annotation.ParamInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -18,6 +16,8 @@ public class ObjectParser {
 
     private YamlParser yamlParser = new YamlParser();
     private AnnotationResolver resolver = new AnnotationResolver();
+    private Constructors constructors = new Constructors();
+    private Types types = new Types();
 
     public <T> T parse(String source, Class<T> clazz) {
         YamlMap yamlMap = yamlParser.parse(source);
@@ -25,26 +25,12 @@ public class ObjectParser {
     }
 
     private <T> T parse(YamlMap yamlMap, Class<T> clazz) {
-        Constructor<T> constructor = getConstructor(clazz);
+        Constructor<T> constructor = constructors.getConstructor(clazz);
         if (constructor.getParameterTypes().length == 0) {
             return injectByFields(yamlMap, constructor);
         } else {
             return injectByConstructor(yamlMap, constructor);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> Constructor<T> getConstructor(Class<T> clazz) {
-        Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
-        Constructor<T> constructor = null;
-        for (Constructor<T> c : constructors) {
-            if (c.getParameterTypes().length == 0) {
-                constructor = c;
-                break;
-            }
-            constructor = c;
-        }
-        return constructor;
     }
 
     private <T> T injectByFields(YamlMap yamlMap, Constructor<T> constructor) {
@@ -57,11 +43,8 @@ public class ObjectParser {
                 String fieldName = annotationName != null ? annotationName.value() : field.getName();
                 YamlObject yamlObject = map.get(fieldName);
                 if (yamlObject != null) {
-                    Type genericType = field.getGenericType();
-                    Type[] actualTypes = genericType instanceof ParameterizedType ?
-                            ((ParameterizedType) genericType).getActualTypeArguments() :
-                            new Type[]{genericType};
-                    Object typedValue = getTyped(yamlObject, field.getType(), actualTypes);
+                    Type[] actualTypes = types.getActualTypes(field.getGenericType());
+                    Object typedValue = typedValue(yamlObject, field.getType(), actualTypes);
                     field.setAccessible(true);
                     field.set(instance, typedValue);
                 }
@@ -74,76 +57,69 @@ public class ObjectParser {
 
     private <T> T injectByConstructor(YamlMap yamlMap, Constructor<T> constructor) {
         Map<String, ParamInfo> argNameTypes = resolver.lookupParameterNames(constructor);
-        Object[] initArgs = getConstructorArgs(yamlMap, argNameTypes);
-        constructor.setAccessible(true);
-        try {
-            return constructor.newInstance(initArgs);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    private Object[] getConstructorArgs(YamlMap yamlMap, Map<String, ParamInfo> argNameTypes) {
-        Object[] initArgs = new Object[argNameTypes.size()];
+        Object[] args = new Object[argNameTypes.size()];
         for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
-            String key = entry.getKey();
-            YamlObject value = entry.getValue();
-
-            ParamInfo paramInfo = argNameTypes.get(key);
-            Object injected = getTyped(value, paramInfo.getType(), paramInfo.getActualTypes());
-            initArgs[paramInfo.getPos()] = injected;
+            ParamInfo paramInfo = argNameTypes.get(entry.getKey());
+            Object valueToInject = typedValue(entry.getValue(), paramInfo.getType(), paramInfo.getActualTypes());
+            args[paramInfo.getPos()] = valueToInject;
         }
-        return initArgs;
+        return constructors.newInstance(constructor, args);
     }
+
 
     @SuppressWarnings("all")
-    private Object getTyped(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
+    private Object typedValue(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
         if (yamlObject instanceof YamlPrimitive) {
             YamlPrimitive primitive = (YamlPrimitive) yamlObject;
             return primitive.cast(type);
         } else if (yamlObject instanceof YamlMap) {
-            YamlMap yamlMap = (YamlMap) yamlObject;
-            // If inner map
-            if (Map.class.isAssignableFrom(type)) {
-                Map<Object, Object> map = new HashMap<>();
-                for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
-                    String key = entry.getKey();
-                    YamlObject value = entry.getValue();
-                    if (!actualTypes[0].equals(String.class)) {
-                        throw new IllegalArgumentException("Maps can have only Strings as keys, not " + actualTypes[0]);
-                    }
-                    Type actualType = actualTypes[1];  // Value type
-                    Type[] subTypes = actualType instanceof ParameterizedType ?
-                            ((ParameterizedType) actualType).getActualTypeArguments() :
-                            new Type[]{actualType};
-                    map.put(key, getTyped(value, (Class<?>) actualType, subTypes));
-                }
-                return map;
-            } else {
-                return parse(yamlMap, type);
-            }
+            return typedMap((YamlMap) yamlObject, type, actualTypes);
         } else if (yamlObject instanceof YamlList) {
-            YamlList yamlList = (YamlList) yamlObject;
-            if (!Collection.class.isAssignableFrom(type)) {
-                throw new IllegalArgumentException(yamlList + " is not assignable to " + type);
-            }
-            Collection<Object> list;
-            if (List.class.isAssignableFrom(type)) {
-                list = new ArrayList<>();
-            } else if (Set.class.isAssignableFrom(type)) {
-                list = new HashSet<>();
-            } else {
-                throw new IllegalStateException("Unknown type " + type);
-            }
-            for (YamlObject subObject : yamlList.getList()) {
-                Type actualType = actualTypes[0];
-                Type[] subTypes = actualType instanceof ParameterizedType ?
-                        ((ParameterizedType) actualType).getActualTypeArguments() :
-                        new Type[]{actualType};
-                list.add(getTyped(subObject, (Class<?>) actualType, subTypes));
-            }
-            return list;
+            return typedList(yamlObject, type, actualTypes);
         }
-        return null;
+        throw new IllegalStateException("Unknow yaml object=" + yamlObject);
+    }
+
+    private Object typedMap(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
+        YamlMap yamlMap = (YamlMap) yamlObject;
+        if (Map.class.isAssignableFrom(type)) {
+            // If inner map
+            Map<Object, Object> map = new HashMap<>();
+            for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
+                String key = entry.getKey();
+                YamlObject value = entry.getValue();
+                if (!actualTypes[0].equals(String.class)) {
+                    throw new IllegalArgumentException("Maps can have only Strings as keys, not " + actualTypes[0]);
+                }
+                Type actualType = actualTypes[1];  // Map value
+                map.put(key, typedValue(value, (Class<?>) actualType, types.getActualTypes(actualType)));
+            }
+            return map;
+        } else {
+            return parse(yamlMap, type);
+        }
+    }
+
+    private Object typedList(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
+        YamlList yamlList = (YamlList) yamlObject;
+        if (!Collection.class.isAssignableFrom(type)) {
+            throw new IllegalArgumentException(yamlList + " is not assignable to " + type);
+        }
+        Collection<Object> collection = newCollection(type);
+        for (YamlObject subObject : yamlList.getList()) {
+            Type actualType = actualTypes[0];
+            collection.add(typedValue(subObject, (Class<?>) actualType, types.getActualTypes(actualType)));
+        }
+        return collection;
+    }
+
+    private Collection<Object> newCollection(Class<?> type) {
+        if (List.class.isAssignableFrom(type)) {
+            return new ArrayList<>();
+        } else if (Set.class.isAssignableFrom(type)) {
+            return new HashSet<>();
+        }
+        throw new IllegalStateException("Unknown type " + type);
     }
 }
