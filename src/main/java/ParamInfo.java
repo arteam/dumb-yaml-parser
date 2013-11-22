@@ -1,5 +1,3 @@
-package annotation;
-
 import java.lang.reflect.Type;
 
 /**
@@ -10,9 +8,20 @@ import java.lang.reflect.Type;
  */
 public class ParamInfo {
 
-    int pos;
-    Class<?> type;
-    Type[] actualTypes;
+    /**
+     * Argument position in constructor
+     */
+    private int pos;
+
+    /**
+     * Type of argument
+     */
+    private Class<?> type;
+
+    /**
+     * Actual types (if type is collection: List, Map)
+     */
+    private Type[] actualTypes;
 
     public ParamInfo(int pos, Class<?> type, Type[] actualTypes) {
         this.pos = pos;
