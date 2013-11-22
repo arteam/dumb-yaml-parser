@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -60,6 +61,13 @@ public class YamlObjectTest {
         MapInject test = parser.parse(file("/test2.yml"), MapInject.class);
         System.out.println(test);
         Assert.assertEquals(test, new MapInject(new MapInject.Key(1, 2), "talk"));
+    }
+
+    @Test
+    public void testListInject()  {
+        IdList test = parser.parse(file("/test6.yml"), IdList.class);
+        System.out.println(test);
+        Assert.assertEquals(test, new IdList(Arrays.asList(1,2,3)));
     }
 
     private static String file(String fileName) {
