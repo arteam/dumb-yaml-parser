@@ -9,13 +9,17 @@ import java.lang.reflect.Constructor;
 public class Constructors {
 
     @SuppressWarnings("unchecked")
-    public  <T> Constructor<T> getConstructor(Class<T> clazz) {
+    public <T> Constructor<T> getConstructor(Class<T> clazz) {
         Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
         Constructor<T> constructor = null;
         for (Constructor<T> c : constructors) {
+            // Default constructor
             if (c.getParameterTypes().length == 0) {
                 constructor = c;
                 break;
+            }
+            if (constructor != null) {
+                throw new IllegalArgumentException("Too many constructors with parameters for " + clazz);
             }
             constructor = c;
         }

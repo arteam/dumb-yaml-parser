@@ -63,7 +63,6 @@ public class MapInject {
     public String toString() {
         return "MapInject{" +
                 "key=" + key +
-                ", trash='" + trash + '\'' +
-                '}';
+                ", trash=" + trash + '}';
     }
 }

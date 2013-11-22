@@ -81,6 +81,21 @@ public class YamlObjectTest {
         }}));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongParametersInConstructor()  {
+        parser.parse(file("/test.yml"), WrongStringPrimitives.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNotSetParametersInConstructor()  {
+        parser.parse(file("/test.yml"), NotSetStringPrimitives.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testTooManyConstructors()  {
+        parser.parse(file("/test.yml"), TooManyConstructors.class);
+    }
+
     private static String file(String fileName) {
         String file = YamlObjectTest.class.getResource(fileName).getFile();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {

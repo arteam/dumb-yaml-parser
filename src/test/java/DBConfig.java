@@ -38,8 +38,8 @@ public class DBConfig {
         @Override
         public String toString() {
             return "Database{" +
-                    "driver='" + driver +
-                    ", url='" + url +
+                    "driver=" + driver +
+                    ", url=" + url +
                     '}';
         }
     }
@@ -56,7 +56,6 @@ public class DBConfig {
     @Override
     public String toString() {
         return "DBConfig{" +
-                "db=" + db +
-                '}';
+                "db=" + db +'}';
     }
 }
