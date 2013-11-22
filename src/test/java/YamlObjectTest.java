@@ -1,15 +1,11 @@
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.hamcrest.core.IsEqual.equalTo;
+import static util.FileUtils.file;
 
 /**
  * Date: 11/20/13
@@ -104,17 +100,5 @@ public class YamlObjectTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMapTypeFail()  {
         parser.parse(file("/test2.yml"), StringPrimitives.class);
-    }
-
-    private static String file(String fileName) {
-        String file = YamlObjectTest.class.getResource(fileName).getFile();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            int size = (int) Files.size(Paths.get(file));
-            char[] buf = new char[size];
-            reader.read(buf);
-            return new String(buf);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 }
