@@ -22,7 +22,7 @@ public class YamlParser {
         int pos = 0;
         while (pos < lines.size()) {
             ParserNewStep rv = analyze(lines, pos, -1, map);
-            if (!rv.ifContinue) throw new IllegalStateException("Delimeter problems");
+            if (!rv.ifContinue) throw new IllegalStateException("Delimiter problems");
             pos = rv.pos;
         }
 
@@ -47,15 +47,16 @@ public class YamlParser {
                 return parsePrimitive(pos, map, key, value);
             } else {
                 Map<String, YamlObject> childMap = new HashMap<>();
-                // While not ended iterate
                 ParserNewStep newStep;
                 int nextPos = pos + 1;
+                // Iterate while parser not jumped to upper level
                 do {
                     newStep = analyze(lines, nextPos, amountDelimiters, childMap);
                     nextPos = newStep.pos;
                 } while (newStep.ifContinue);
-                if (childMap.isEmpty())
+                if (childMap.isEmpty()) {
                     throw new IllegalArgumentException("Key " + key + " hasn't got values");
+                }
                 map.put(key, new YamlMap(childMap));
                 return new ParserNewStep(true, nextPos);
             }
@@ -64,6 +65,10 @@ public class YamlParser {
     }
 
     private ParserNewStep parsePrimitive(int pos, Map<String, YamlObject> map, String key, String value) {
+        if (map.containsKey(key)) {
+            throw new IllegalArgumentException("Map " + map + " already contains key " + key);
+        }
+        // Apparently regexp validation should be here
         if (value.startsWith("[") && value.endsWith("]")) {
             String[] split = value.substring(1, value.length() - 1).split(",");
             List<YamlObject> list = new ArrayList<>();
