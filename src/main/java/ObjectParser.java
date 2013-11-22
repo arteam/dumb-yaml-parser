@@ -4,6 +4,8 @@ import annotation.ParamInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,12 +21,15 @@ public class ObjectParser {
 
     public <T> T parse(String source, Class<T> clazz) {
         YamlMap yamlMap = yamlParser.parse(source);
+        return parse(yamlMap, clazz);
+    }
 
+    private <T> T parse(YamlMap yamlMap, Class<T> clazz) {
         Constructor<T> constructor = getConstructor(clazz);
         if (constructor.getParameterTypes().length == 0) {
-            return injectByFields(constructor, clazz, yamlMap);
+            return injectByFields(yamlMap, constructor);
         } else {
-            return injectByConstructor(constructor, clazz, yamlMap);
+            return injectByConstructor(yamlMap, constructor);
         }
     }
 
@@ -42,11 +47,11 @@ public class ObjectParser {
         return constructor;
     }
 
-    private <T> T injectByFields(Constructor<T> constructor, Class<T> clazz, YamlMap yamlMap) {
+    private <T> T injectByFields(YamlMap yamlMap, Constructor<T> constructor) {
         Map<String, YamlObject> map = yamlMap.getMap();
         try {
             T instance = constructor.newInstance();
-            Field[] declaredFields = clazz.getDeclaredFields();
+            Field[] declaredFields = instance.getClass().getDeclaredFields();
             for (Field field : declaredFields) {
                 Name annotationName = field.getAnnotation(Name.class);
                 String fieldName = annotationName != null ? annotationName.value() : field.getName();
@@ -63,12 +68,12 @@ public class ObjectParser {
         }
     }
 
-    private <T> T injectByConstructor(Constructor<T> constructor, Class<T> clazz, YamlMap yamlMap) {
+    private <T> T injectByConstructor(YamlMap yamlMap, Constructor<T> constructor) {
         Map<String, ParamInfo> argNameTypes = resolver.lookupParameterNames(constructor);
         Object[] initArgs = getConstructorArgs(yamlMap, argNameTypes);
         constructor.setAccessible(true);
         try {
-            return (T) constructor.newInstance(initArgs);
+            return constructor.newInstance(initArgs);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -91,6 +96,9 @@ public class ObjectParser {
         if (yamlObject instanceof YamlPrimitive) {
             YamlPrimitive primitive = (YamlPrimitive) yamlObject;
             return primitive.cast(type);
+        } else if (yamlObject instanceof YamlMap) {
+            YamlMap yamlMap = (YamlMap) yamlObject;
+            return parse(yamlMap, type);
         }
         return null;
     }

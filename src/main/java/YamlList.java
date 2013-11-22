@@ -15,6 +15,10 @@ public class YamlList implements YamlObject {
         this.list = list;
     }
 
+    public List<YamlObject> getList() {
+        return list;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof YamlList) {
