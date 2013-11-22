@@ -1,8 +1,8 @@
-package annotation;
+import annotation.Name;
+import annotation.ParamInfo;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,14 +16,14 @@ import java.util.Map;
  */
 public class AnnotationResolver {
 
+    private Types typesUtil = new Types();
+
     public Map<String, ParamInfo> lookupParameterNames(Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
-        Type[] genericTypes =  constructor.getGenericParameterTypes();
+        Type[] genericTypes = constructor.getGenericParameterTypes();
         Annotation[][] anns = constructor.getParameterAnnotations();
 
-        if (types.length == 0) {
-            return Collections.emptyMap();
-        }
+        if (types.length == 0) return Collections.emptyMap();
 
         Map<String, ParamInfo> paramTypes = new LinkedHashMap<>();
         for (int i = 0; i < types.length; i++) {
@@ -37,10 +37,7 @@ public class AnnotationResolver {
                             " has 2 params with the same name name=" + namedValue);
                 }
 
-                Type genericType =  genericTypes[i];
-                Type[] actualTypes = genericType instanceof ParameterizedType ?
-                        ((ParameterizedType) genericType).getActualTypeArguments() :
-                        new Type[]{genericType};
+                Type[] actualTypes = typesUtil.getActualTypes(genericTypes[i]);
                 paramTypes.put(namedValue, new ParamInfo(i, types[i], actualTypes));
                 break;
             }
