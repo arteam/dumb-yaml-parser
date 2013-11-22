@@ -4,8 +4,10 @@ import annotation.ParamInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -57,7 +59,11 @@ public class ObjectParser {
                 String fieldName = annotationName != null ? annotationName.value() : field.getName();
                 YamlObject yamlObject = map.get(fieldName);
                 if (yamlObject != null) {
-                    Object typedValue = getTyped(yamlObject, field.getType());
+                    Type genericType = field.getGenericType();
+                    Type[] actualTypes = genericType instanceof ParameterizedType ?
+                            ((ParameterizedType) genericType).getActualTypeArguments() :
+                            new Type[]{genericType};
+                    Object typedValue = getTyped(yamlObject, field.getType(), actualTypes);
                     field.setAccessible(true);
                     field.set(instance, typedValue);
                 }
@@ -86,19 +92,36 @@ public class ObjectParser {
             YamlObject value = entry.getValue();
 
             ParamInfo paramInfo = argNameTypes.get(key);
-            Object injected = getTyped(value, paramInfo.getType());
+            Object injected = getTyped(value, paramInfo.getType(), paramInfo.getActualTypes());
             initArgs[paramInfo.getPos()] = injected;
         }
         return initArgs;
     }
 
-    private Object getTyped(YamlObject yamlObject, Class<?> type) {
+    private Object getTyped(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
         if (yamlObject instanceof YamlPrimitive) {
             YamlPrimitive primitive = (YamlPrimitive) yamlObject;
             return primitive.cast(type);
         } else if (yamlObject instanceof YamlMap) {
             YamlMap yamlMap = (YamlMap) yamlObject;
             return parse(yamlMap, type);
+        } else if (yamlObject instanceof YamlList) {
+            YamlList yamlList = (YamlList) yamlObject;
+            Collection<Object> list = new ArrayList<>();
+            for (YamlObject subObject : yamlList.getList()) {
+                Type actualType;
+                Type[] subTypes;
+                if (actualTypes != null && actualTypes.length > 0) {
+                    actualType = actualTypes[0];
+                    subTypes = new Type[actualTypes.length - 1];
+                    System.arraycopy(actualTypes, 1, subTypes, 0, actualTypes.length - 1);
+                } else {
+                    actualType = String.class;
+                    subTypes = null;
+                }
+                list.add(getTyped(subObject, (Class) actualType, subTypes));
+            }
+            return list;
         }
         return null;
     }

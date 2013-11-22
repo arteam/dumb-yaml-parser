@@ -1,5 +1,7 @@
 package annotation;
 
+import java.lang.reflect.Type;
+
 /**
  * Date: 11/21/13
  * Time: 11:38 PM
@@ -10,10 +12,12 @@ public class ParamInfo {
 
     int pos;
     Class<?> type;
+    Type[] actualTypes;
 
-    public ParamInfo(int pos, Class<?> type) {
+    public ParamInfo(int pos, Class<?> type, Type[] actualTypes) {
         this.pos = pos;
         this.type = type;
+        this.actualTypes = actualTypes;
     }
 
     public int getPos() {
@@ -22,5 +26,9 @@ public class ParamInfo {
 
     public Class<?> getType() {
         return type;
+    }
+
+    public Type[] getActualTypes() {
+        return actualTypes;
     }
 }

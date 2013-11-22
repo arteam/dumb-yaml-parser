@@ -2,6 +2,7 @@ package annotation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -17,7 +18,7 @@ public class AnnotationResolver {
 
     public Map<String, ParamInfo> lookupParameterNames(Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
-        Type[] genericParameterTypes = constructor.getGenericParameterTypes();
+        Type[] genericTypes =  constructor.getGenericParameterTypes();
         Annotation[][] anns = constructor.getParameterAnnotations();
 
         if (types.length == 0) {
@@ -35,7 +36,12 @@ public class AnnotationResolver {
                     throw new IllegalArgumentException("Constructor " + constructor +
                             " has 2 params with the same name name=" + namedValue);
                 }
-                paramTypes.put(namedValue, new ParamInfo(i, types[i]));
+
+                Type genericType =  genericTypes[i];
+                Type[] actualTypes = genericType instanceof ParameterizedType ?
+                        ((ParameterizedType) genericType).getActualTypeArguments() :
+                        new Type[]{genericType};
+                paramTypes.put(namedValue, new ParamInfo(i, types[i], actualTypes));
                 break;
             }
         }
