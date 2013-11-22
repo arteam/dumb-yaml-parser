@@ -1,7 +1,9 @@
 import annotation.AnnotationResolver;
+import annotation.Name;
 import annotation.ParamInfo;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -16,39 +18,21 @@ public class ObjectParser {
     private AnnotationResolver resolver = new AnnotationResolver();
 
     public <T> T parse(String source, Class<T> clazz) {
-        Constructor<?> constructor = getConstructor(clazz);
-        Map<String, ParamInfo> argNameTypes = resolver.lookupParameterNames(constructor);
-
         YamlMap yamlMap = yamlParser.parse(source);
-        Object[] initArgs = processArgs(yamlMap, argNameTypes);
 
-        return newInstance(constructor, initArgs);
+        Constructor<T> constructor = getConstructor(clazz);
+        if (constructor.getParameterTypes().length == 0) {
+            return injectByFields(constructor, clazz, yamlMap);
+        } else {
+            return injectByConstructor(constructor, clazz, yamlMap);
+        }
     }
 
-    private Object[] processArgs(YamlMap yamlMap, Map<String, ParamInfo> argNameTypes) {
-        Object[] initArgs = new Object[argNameTypes.size()];
-        for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
-            String key = entry.getKey();
-            YamlObject value = entry.getValue();
-            if (value instanceof YamlPrimitive) {
-                YamlPrimitive primitive = (YamlPrimitive) value;
-                ParamInfo paramInfo = argNameTypes.get(key);
-                Class<?> type = paramInfo.getType();
-                Object injected = primitive.cast(type);
-                initArgs[paramInfo.getPos()] = injected;
-            }
-        }
-        return initArgs;
-    }
-
-    private <T> Constructor<?> getConstructor(Class<T> clazz) {
-        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-        if (constructors.length == 0) {
-            throw new RuntimeException("No constructors");
-        }
-
-        Constructor<?> constructor = null;
-        for (Constructor<?> c : constructors) {
+    @SuppressWarnings("unchecked")
+    private <T> Constructor<T> getConstructor(Class<T> clazz) {
+        Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
+        Constructor<T> constructor = null;
+        for (Constructor<T> c : constructors) {
             if (c.getParameterTypes().length == 0) {
                 constructor = c;
                 break;
@@ -58,8 +42,30 @@ public class ObjectParser {
         return constructor;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T newInstance(Constructor constructor, Object[] initArgs) {
+    private <T> T injectByFields(Constructor<T> constructor, Class<T> clazz, YamlMap yamlMap) {
+        Map<String, YamlObject> map = yamlMap.getMap();
+        try {
+            T instance = constructor.newInstance();
+            Field[] declaredFields = clazz.getDeclaredFields();
+            for (Field field : declaredFields) {
+                Name annotationName = field.getAnnotation(Name.class);
+                String fieldName = annotationName != null ? annotationName.value() : field.getName();
+                YamlObject yamlObject = map.get(fieldName);
+                if (yamlObject != null) {
+                    Object typedValue = getTyped(yamlObject, field.getType());
+                    field.setAccessible(true);
+                    field.set(instance, typedValue);
+                }
+            }
+            return instance;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <T> T injectByConstructor(Constructor<T> constructor, Class<T> clazz, YamlMap yamlMap) {
+        Map<String, ParamInfo> argNameTypes = resolver.lookupParameterNames(constructor);
+        Object[] initArgs = getConstructorArgs(yamlMap, argNameTypes);
         constructor.setAccessible(true);
         try {
             return (T) constructor.newInstance(initArgs);
@@ -68,5 +74,24 @@ public class ObjectParser {
         }
     }
 
+    private Object[] getConstructorArgs(YamlMap yamlMap, Map<String, ParamInfo> argNameTypes) {
+        Object[] initArgs = new Object[argNameTypes.size()];
+        for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
+            String key = entry.getKey();
+            YamlObject value = entry.getValue();
 
+            ParamInfo paramInfo = argNameTypes.get(key);
+            Object injected = getTyped(value, paramInfo.getType());
+            initArgs[paramInfo.getPos()] = injected;
+        }
+        return initArgs;
+    }
+
+    private Object getTyped(YamlObject yamlObject, Class<?> type) {
+        if (yamlObject instanceof YamlPrimitive) {
+            YamlPrimitive primitive = (YamlPrimitive) yamlObject;
+            return primitive.cast(type);
+        }
+        return null;
+    }
 }
