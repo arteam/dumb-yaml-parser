@@ -2,6 +2,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import test.data.*;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -84,6 +85,14 @@ public class YamlObjectTest {
         System.out.println(test);
         Assert.assertEquals(test, new Person("\"foo\"", "foo@mail.com", 12,
                 Arrays.asList(Person.JobType.VOD, Person.JobType.TV), Person.Network.OTT));
+    }
+
+    @Test
+    public void testDateIntervalTest() throws Exception {
+        DateInterval test = parser.parse(file("/test11.yml"), DateInterval.class);
+        System.out.println(test);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Assert.assertEquals(test, new DateInterval(sdf.parse("2010-11-18 12:30"), sdf.parse("2010-11-20 14:00")));
     }
 
     @Test(expected = IllegalArgumentException.class)

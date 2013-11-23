@@ -1,9 +1,13 @@
 package domain;
 
+import annotation.DateConverter;
 import annotation.EnumConverter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -28,22 +32,18 @@ public class YamlPrimitive implements YamlObject {
         if (o == null) {
             if (Enum.class.isAssignableFrom(type)) {
                 return castToEnum(type, annotations);
+            } else if (type == Date.class) {
+                return castToDate(type, annotations);
+            }  else {
+                throw new IllegalArgumentException("Unable represent " + type + " as plain value");
             }
         }
         return o;
     }
 
     /**
-     * Cast object to base class (primitives + strings)
+     * Cast to base type
      */
-    public Object cast(Class<?> type) {
-        Object o = castToBaseType(type);
-        if (o == null) {
-            throw new IllegalArgumentException("type=" + type + " is not primitive");
-        }
-        return 0;
-    }
-
     private Object castToBaseType(Class<?> type) {
         try {
             if (type == String.class) {
@@ -71,6 +71,9 @@ public class YamlPrimitive implements YamlObject {
         }
     }
 
+    /**
+     * Cast to enum based on valueOf method from annotation
+     */
     private Object castToEnum(Class<?> type, Annotation[] annotations) {
         String valueOfMethod = "valueOf";
         for (Annotation ann : annotations) {
@@ -89,9 +92,30 @@ public class YamlPrimitive implements YamlObject {
             }
             return enumObject;
         } catch (Exception e) {
-            throw new IllegalStateException("Unable invoke valueOf method of enum " + type, e);
+            throw new IllegalArgumentException("Unable invoke valueOf method of enum " + type, e);
         }
     }
+
+    /**
+     * Cast to date based on format from annotation
+     */
+    private Object castToDate(Class<?> type, Annotation[] annotations) {
+        String dateFormat = "yyyy-MM-dd HH:mm:ss";
+        for (Annotation ann : annotations) {
+            if (ann.annotationType() == DateConverter.class) {
+                DateConverter enumConverter = (DateConverter) ann;
+                dateFormat = enumConverter.value();
+                break;
+            }
+        }
+
+        try {
+            return new SimpleDateFormat(dateFormat).parse(value);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Unable format " + value + " by format: " + value, e);
+        }
+    }
+
 
     @Override
     public boolean equals(Object o) {
