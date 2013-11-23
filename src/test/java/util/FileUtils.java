@@ -25,4 +25,8 @@ public class FileUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static String relativeFileName(String fileName) {
+        return FileUtils.class.getResource(fileName).getFile();
+    }
 }

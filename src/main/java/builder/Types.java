@@ -1,4 +1,4 @@
-package builder.util;
+package builder;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -11,7 +11,7 @@ import java.util.*;
  *
  * @author Artem Prigoda
  */
-public class Types {
+class Types {
 
     public Type[] getActualTypes(Type genericType) {
         return genericType instanceof ParameterizedType ?

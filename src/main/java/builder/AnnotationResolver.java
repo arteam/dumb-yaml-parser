@@ -1,7 +1,6 @@
 package builder;
 
 import annotation.Name;
-import builder.util.Types;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -17,7 +16,7 @@ import java.util.Map;
  *
  * @author Artem Prigoda
  */
-public class AnnotationResolver {
+class AnnotationResolver {
 
     private Types typesUtil = new Types();
 
