@@ -1,3 +1,4 @@
+import org.dumb.yaml.Yaml;
 import org.junit.Assert;
 import org.junit.Test;
 import test.data.*;

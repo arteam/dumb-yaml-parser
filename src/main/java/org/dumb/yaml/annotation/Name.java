@@ -1,4 +1,4 @@
-package annotation;
+package org.dumb.yaml.annotation;
 
 import java.lang.annotation.Retention;
 

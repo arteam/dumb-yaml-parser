@@ -1,4 +1,4 @@
-package domain;
+package org.dumb.yaml.domain;
 
 /**
  * Date: 11/19/13

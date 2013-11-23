@@ -1,6 +1,6 @@
 package test.data;
 
-import annotation.Name;
+import org.dumb.yaml.annotation.Name;
 
 /**
  * Date: 11/22/13
