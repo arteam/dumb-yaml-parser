@@ -1,7 +1,7 @@
 package test.data;
 
-import annotation.DateConverter;
-import annotation.Name;
+import org.dumb.yaml.annotation.DateConverter;
+import org.dumb.yaml.annotation.Name;
 
 import java.util.Date;
 

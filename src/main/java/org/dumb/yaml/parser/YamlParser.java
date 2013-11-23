@@ -1,11 +1,10 @@
-package parser;
+package org.dumb.yaml.parser;
 
-import domain.YamlList;
-import domain.YamlMap;
-import domain.YamlObject;
-import domain.YamlPrimitive;
+import org.dumb.yaml.domain.YamlList;
+import org.dumb.yaml.domain.YamlMap;
+import org.dumb.yaml.domain.YamlObject;
+import org.dumb.yaml.domain.YamlPrimitive;
 
-import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,13 +40,13 @@ public class YamlParser {
     }
 
     /**
-     * Analyze current line and decide what parser should do
+     * Analyze current line and decide what org.dumb.yaml.parser should do
      *
      * @param lines          All lines
      * @param pos            current line number
      * @param rootDelimiters level of previous branch
      * @param map            previous branch map
-     * @return new parser step
+     * @return new org.dumb.yaml.parser step
      */
     private ParserNewStep analyze(List<String> lines, int pos, int rootDelimiters, Map<String, YamlObject> map) {
         if (pos > lines.size() - 1)
@@ -75,7 +74,7 @@ public class YamlParser {
                 Map<String, YamlObject> childMap = new HashMap<>();
                 ParserNewStep newStep;
                 int nextPos = pos + 1;
-                // Iterate while parser not jumped to upper level
+                // Iterate while org.dumb.yaml.parser not jumped to upper level
                 do {
                     newStep = analyze(lines, nextPos, amountDelimiters, childMap);
                     nextPos = newStep.pos;

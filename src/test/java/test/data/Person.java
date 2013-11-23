@@ -1,7 +1,7 @@
 package test.data;
 
-import annotation.EnumConverter;
-import annotation.Name;
+import org.dumb.yaml.annotation.EnumConverter;
+import org.dumb.yaml.annotation.Name;
 
 import java.util.List;
 

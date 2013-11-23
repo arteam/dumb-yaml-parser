@@ -1,4 +1,4 @@
-import domain.YamlMap;
+package org.dumb.yaml;
 
 import java.io.*;
 import java.util.ArrayList;

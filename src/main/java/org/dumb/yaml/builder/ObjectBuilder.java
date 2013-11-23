@@ -1,7 +1,7 @@
-package builder;
+package org.dumb.yaml.builder;
 
-import annotation.Name;
-import domain.*;
+import org.dumb.yaml.annotation.Name;
+import org.dumb.yaml.domain.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;

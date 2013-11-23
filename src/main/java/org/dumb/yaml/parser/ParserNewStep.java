@@ -1,4 +1,4 @@
-package parser;
+package org.dumb.yaml.parser;
 
 /**
  * Date: 11/20/13

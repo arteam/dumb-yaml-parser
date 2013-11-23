@@ -1,4 +1,4 @@
-package domain;
+package org.dumb.yaml.domain;
 
 import java.util.Map;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package builder;
+package org.dumb.yaml.builder;
 
 import java.lang.reflect.Constructor;
 

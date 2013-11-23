@@ -1,7 +1,7 @@
-package domain;
+package org.dumb.yaml.domain;
 
-import annotation.DateConverter;
-import annotation.EnumConverter;
+import org.dumb.yaml.annotation.DateConverter;
+import org.dumb.yaml.annotation.EnumConverter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

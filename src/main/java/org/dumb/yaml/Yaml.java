@@ -1,6 +1,8 @@
-import domain.YamlMap;
-import builder.ObjectBuilder;
-import parser.YamlParser;
+package org.dumb.yaml;
+
+import org.dumb.yaml.domain.YamlMap;
+import org.dumb.yaml.builder.ObjectBuilder;
+import org.dumb.yaml.parser.YamlParser;
 
 import java.io.BufferedReader;
 import java.io.File;

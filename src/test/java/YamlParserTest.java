@@ -1,7 +1,8 @@
-import domain.YamlList;
-import domain.YamlMap;
-import domain.YamlObject;
-import domain.YamlPrimitive;
+import org.dumb.yaml.Yaml;
+import org.dumb.yaml.domain.YamlList;
+import org.dumb.yaml.domain.YamlMap;
+import org.dumb.yaml.domain.YamlObject;
+import org.dumb.yaml.domain.YamlPrimitive;
 import org.junit.Test;
 
 import java.io.BufferedReader;
