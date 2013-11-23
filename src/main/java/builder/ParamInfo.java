@@ -1,5 +1,6 @@
 package builder;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 /**
@@ -25,10 +26,13 @@ public class ParamInfo {
      */
     private Type[] actualTypes;
 
-    public ParamInfo(int pos, Class<?> type, Type[] actualTypes) {
+    private Annotation[] annotations;
+
+    public ParamInfo(int pos, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
         this.pos = pos;
         this.type = type;
         this.actualTypes = actualTypes;
+        this.annotations = annotations;
     }
 
     public int getPos() {
@@ -41,5 +45,9 @@ public class ParamInfo {
 
     public Type[] getActualTypes() {
         return actualTypes;
+    }
+
+    public Annotation[] getAnnotations() {
+        return annotations;
     }
 }
