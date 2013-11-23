@@ -38,7 +38,7 @@ class StreamAdapter {
     }
 
     public List<String> convert(BufferedReader reader) {
-        List<String> lines = new ArrayList<>();
+        List<String> lines = new ArrayList<String>();
         String line;
         try {
             while ((line = reader.readLine()) != null) {
