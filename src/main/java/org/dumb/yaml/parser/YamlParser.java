@@ -28,7 +28,7 @@ public class YamlParser {
         if (lines.size() == 0)
             throw new IllegalArgumentException("No data to parse");
 
-        Map<String, YamlObject> map = new HashMap<>();
+        Map<String, YamlObject> map = new HashMap<String, YamlObject>();
         int pos = 0;
         while (pos < lines.size()) {
             ParserNewStep rv = analyze(lines, pos, -1, map);
@@ -71,7 +71,7 @@ public class YamlParser {
                 map.put(key, parseStringValue(value));
                 return new ParserNewStep(true, pos + 1);
             } else {
-                Map<String, YamlObject> childMap = new HashMap<>();
+                Map<String, YamlObject> childMap = new HashMap<String, YamlObject>();
                 ParserNewStep newStep;
                 int nextPos = pos + 1;
                 // Iterate while org.dumb.yaml.parser not jumped to upper level
@@ -98,14 +98,14 @@ public class YamlParser {
         // Apparently regexp validation should be here
         if (value.startsWith("[") && value.endsWith("]")) {
             String[] split = value.substring(1, value.length() - 1).split(",");
-            List<YamlObject> list = new ArrayList<>();
+            List<YamlObject> list = new ArrayList<YamlObject>();
             for (String s : split) {
                 list.add(new YamlPrimitive(s.trim()));
             }
             return new YamlList(list);
         } else if (value.startsWith("{") && value.endsWith("}")) {
             String[] split = value.substring(1, value.length() - 1).split(",");
-            Map<String, YamlObject> childMap = new HashMap<>();
+            Map<String, YamlObject> childMap = new HashMap<String, YamlObject>();
             for (String s : split) {
                 String[] keyValue = s.split(":");
                 String childKey = keyValue[0].trim();

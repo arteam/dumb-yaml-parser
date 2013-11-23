@@ -31,7 +31,7 @@ class AnnotationResolver {
 
         if (types.length == 0) return Collections.emptyMap();
 
-        Map<String, ParamInfo> paramTypes = new LinkedHashMap<>();
+        Map<String, ParamInfo> paramTypes = new LinkedHashMap<String, ParamInfo>();
         for (int i = 0; i < types.length; i++) {
             boolean hasNameAnnotation = false;
             for (int j = 0; j < anns[i].length; j++) {

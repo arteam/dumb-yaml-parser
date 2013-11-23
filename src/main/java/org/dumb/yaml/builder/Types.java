@@ -36,9 +36,9 @@ class Types {
             }
         }
         if (List.class.isAssignableFrom(type)) {
-            return new ArrayList<>();
+            return new ArrayList<Object>();
         } else if (Set.class.isAssignableFrom(type)) {
-            return new HashSet<>();
+            return new HashSet<Object>();
         }
         throw new IllegalStateException("Unknown type " + type);
     }

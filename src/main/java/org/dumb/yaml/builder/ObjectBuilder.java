@@ -121,7 +121,7 @@ public class ObjectBuilder {
     private Object typedMap(YamlMap yamlMap, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
         if (Map.class.isAssignableFrom(type)) {
             // If inner map
-            Map<Object, Object> map = new HashMap<>();
+            Map<Object, Object> map = new HashMap<Object, Object>();
             for (Map.Entry<String, YamlObject> entry : yamlMap.getMap().entrySet()) {
                 String key = entry.getKey();
                 YamlObject value = entry.getValue();

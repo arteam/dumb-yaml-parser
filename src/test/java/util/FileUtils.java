@@ -16,14 +16,25 @@ public class FileUtils {
 
     public static String file(String fileName) {
         String file = FileUtils.class.getResource(fileName).getFile();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
             int size = (int) Files.size(Paths.get(file));
             char[] buf = new char[size];
             reader.read(buf);
             return new String(buf);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
+
     }
 
     public static String relativeFileName(String fileName) {
