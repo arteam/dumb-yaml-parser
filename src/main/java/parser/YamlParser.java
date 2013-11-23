@@ -5,6 +5,7 @@ import domain.YamlMap;
 import domain.YamlObject;
 import domain.YamlPrimitive;
 
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,10 +25,9 @@ public class YamlParser {
     /**
      * Parse YAML string to object tree representation
      */
-    public YamlMap parse(String yaml) {
-        List<String> lines = Arrays.asList(yaml.split("\n"));
+    public YamlMap parse(List<String> lines) {
         if (lines.size() == 0)
-            throw new IllegalArgumentException("Bad param: " + yaml);
+            throw new IllegalArgumentException("No data to parse");
 
         Map<String, YamlObject> map = new HashMap<>();
         int pos = 0;

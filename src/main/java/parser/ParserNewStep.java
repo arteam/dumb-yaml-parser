@@ -6,7 +6,7 @@ package parser;
  *
  * @author Artem Prigoda
  */
-public class ParserNewStep {
+class ParserNewStep {
 
     boolean ifContinue;
     int pos;

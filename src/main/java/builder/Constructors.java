@@ -1,4 +1,4 @@
-package builder.util;
+package builder;
 
 import java.lang.reflect.Constructor;
 
@@ -9,7 +9,7 @@ import java.lang.reflect.Constructor;
  *
  * @author Artem Prigoda
  */
-public class Constructors {
+class Constructors {
 
     /**
      * Get actual constructor from class. Default constructor has more high priority
