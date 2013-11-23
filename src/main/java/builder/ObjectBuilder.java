@@ -5,6 +5,7 @@ import builder.util.Constructors;
 import builder.util.Types;
 import domain.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -49,7 +50,7 @@ public class ObjectBuilder {
                 YamlObject yamlObject = map.get(fieldName);
                 if (yamlObject != null) {
                     Type[] actualTypes = types.getActualTypes(field.getGenericType());
-                    Object typedValue = typedValue(yamlObject, field.getType(), actualTypes);
+                    Object typedValue = typedValue(yamlObject, field.getType(), actualTypes, field.getAnnotations());
                     field.setAccessible(true);
                     field.set(instance, typedValue);
                 }
@@ -72,7 +73,8 @@ public class ObjectBuilder {
             ParamInfo paramInfo = argNameTypes.remove(entry.getKey());
             if (paramInfo == null) continue;
 
-            Object valueToInject = typedValue(entry.getValue(), paramInfo.getType(), paramInfo.getActualTypes());
+            Object valueToInject = typedValue(entry.getValue(), paramInfo.getType(),
+                    paramInfo.getActualTypes(), paramInfo.getAnnotations());
             args[paramInfo.getPos()] = valueToInject;
         }
         if (!argNameTypes.isEmpty()) {
@@ -85,13 +87,13 @@ public class ObjectBuilder {
      * Convert yaml object to typed representation
      * If {@param type} is a collection then generic types passed to parameter {@param actualTypes}
      */
-    private Object typedValue(YamlObject yamlObject, Class<?> type, Type[] actualTypes) {
+    private Object typedValue(YamlObject yamlObject, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
         if (yamlObject instanceof YamlPrimitive) {
-            return typedPrimitive((YamlPrimitive) yamlObject, type);
+            return typedPrimitive((YamlPrimitive) yamlObject, type, annotations);
         } else if (yamlObject instanceof YamlMap) {
-            return typedMap((YamlMap) yamlObject, type, actualTypes);
+            return typedMap((YamlMap) yamlObject, type, actualTypes, annotations);
         } else if (yamlObject instanceof YamlList) {
-            return typedList((YamlList) yamlObject, type, actualTypes);
+            return typedList((YamlList) yamlObject, type, actualTypes, annotations);
         }
         throw new IllegalStateException("Unknown yaml object=" + yamlObject);
     }
@@ -99,18 +101,18 @@ public class ObjectBuilder {
     /**
      * Cast YAML primitive to actual type
      */
-    private Object typedPrimitive(YamlPrimitive primitive, Class<?> type) {
-        return primitive.cast(type);
+    private Object typedPrimitive(YamlPrimitive primitive, Class<?> type, Annotation[] annotations) {
+        return primitive.cast(type, annotations);
     }
 
     /**
      * Convert YAML list to type-safe list
      */
-    private Object typedList(YamlList yamlList, Class<?> type, Type[] actualTypes) {
+    private Object typedList(YamlList yamlList, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
         Type actualType = actualTypes[0];
         Collection<Object> collection = types.newCollection(type);
         for (YamlObject subObject : yamlList.getList()) {
-            collection.add(typedValue(subObject, (Class<?>) actualType, types.getActualTypes(actualType)));
+            collection.add(typedValue(subObject, (Class<?>) actualType, types.getActualTypes(actualType), annotations));
         }
         return collection;
     }
@@ -118,7 +120,7 @@ public class ObjectBuilder {
     /**
      * Convert YAML map to type-safe map or composite object
      */
-    private Object typedMap(YamlMap yamlMap, Class<?> type, Type[] actualTypes) {
+    private Object typedMap(YamlMap yamlMap, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
         if (Map.class.isAssignableFrom(type)) {
             // If inner map
             Map<Object, Object> map = new HashMap<>();
@@ -129,7 +131,7 @@ public class ObjectBuilder {
                     throw new IllegalArgumentException("Maps can have only Strings as keys, not " + actualTypes[0]);
                 }
                 Type actualType = actualTypes[1];  // Map value
-                map.put(key, typedValue(value, (Class<?>) actualType, types.getActualTypes(actualType)));
+                map.put(key, typedValue(value, (Class<?>) actualType, types.getActualTypes(actualType), annotations));
             }
             return map;
         } else {

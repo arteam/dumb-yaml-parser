@@ -5,14 +5,14 @@ import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Date: 11/21/13
- * Time: 11:04 PM
- * Property name in YAML file
+ * Date: 11/23/13
+ * Time: 4:38 PM
+ * Enum converter for property values
  *
  * @author Artem Prigoda
  */
 @Retention(RUNTIME)
-public @interface Name {
+public @interface EnumConverter {
 
-    String value() default "";
+    String value() default "valueOf";
 }

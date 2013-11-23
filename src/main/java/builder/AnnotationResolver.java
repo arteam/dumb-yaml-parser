@@ -46,7 +46,7 @@ public class AnnotationResolver {
                 }
 
                 Type[] actualTypes = typesUtil.getActualTypes(genericTypes[i]);
-                paramTypes.put(namedValue, new ParamInfo(i, types[i], actualTypes));
+                paramTypes.put(namedValue, new ParamInfo(i, types[i], actualTypes, anns[i]));
                 hasNameAnnotation = true;
                 break;
             }

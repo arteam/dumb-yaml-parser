@@ -19,14 +19,14 @@ public class YamlObjectTest {
     Yaml parser = new Yaml();
 
     @Test
-    public void testParseStringPrimitives()  {
+    public void testParseStringPrimitives() {
         StringPrimitives test = parser.parse(file("/test.yml"), StringPrimitives.class);
         System.out.println(test);
         Assert.assertEquals(test, new StringPrimitives("val", "talk"));
     }
 
     @Test
-    public void testInjectByFields()  {
+    public void testInjectByFields() {
         StringPrimitivesPlain test = parser.parse(file("/test.yml"), StringPrimitivesPlain.class);
         System.out.println(test);
         StringPrimitivesPlain plain = new StringPrimitivesPlain();
@@ -36,7 +36,7 @@ public class YamlObjectTest {
     }
 
     @Test
-    public void testInjectByFieldsWithAnnotation()  {
+    public void testInjectByFieldsWithAnnotation() {
         StringPrimitivesAnnotation test = parser.parse(file("/test.yml"), StringPrimitivesAnnotation.class);
         System.out.println(test);
         StringPrimitivesAnnotation plain = new StringPrimitivesAnnotation();
@@ -46,7 +46,7 @@ public class YamlObjectTest {
     }
 
     @Test
-    public void testParseNumericPrimitives()  {
+    public void testParseNumericPrimitives() {
         NumericPrimitives test = parser.parse(file("/test9.yml"), NumericPrimitives.class);
         System.out.println(test);
         Assert.assertThat(test, equalTo(
@@ -55,51 +55,59 @@ public class YamlObjectTest {
     }
 
     @Test
-    public void testMapInject()  {
+    public void testMapInject() {
         MapInject test = parser.parse(file("/test2.yml"), MapInject.class);
         System.out.println(test);
         Assert.assertEquals(test, new MapInject(new MapInject.Key(1, 2), "talk"));
     }
 
     @Test
-    public void testListInject()  {
+    public void testListInject() {
         IdList test = parser.parse(file("/test6.yml"), IdList.class);
         System.out.println(test);
-        Assert.assertEquals(test, new IdList(Arrays.asList(1,2,3)));
+        Assert.assertEquals(test, new IdList(Arrays.asList(1, 2, 3)));
     }
 
     @Test
-    public void testInnerMap()  {
+    public void testInnerMap() {
         DBConfig test = parser.parse(file("/test4.yml"), DBConfig.class);
         System.out.println(test);
-        Assert.assertEquals(test, new DBConfig(new HashMap<String, DBConfig.Database>(){{
+        Assert.assertEquals(test, new DBConfig(new HashMap<String, DBConfig.Database>() {{
             put("cms", new DBConfig.Database("Post gres", "52.15:cms"));
             put("sms", new DBConfig.Database("Post gres", "52.15:sms"));
         }}));
     }
 
+    @Test
+    public void testPerson() {
+        Person test = parser.parse(file("/test10.yml"), Person.class);
+        System.out.println(test);
+        Assert.assertEquals(test, new Person("\"foo\"", "foo@mail.com", 12,
+                Arrays.asList(Person.JobType.VOD, Person.JobType.TV), Person.Network.OTT));
+    }
+
     @Test(expected = IllegalArgumentException.class)
-    public void testWrongParametersInConstructor()  {
+    public void testWrongParametersInConstructor() {
         parser.parse(file("/test.yml"), WrongStringPrimitives.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNotSetParametersInConstructor()  {
+    public void testNotSetParametersInConstructor() {
         parser.parse(file("/test.yml"), NotSetStringPrimitives.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testTooManyConstructors()  {
+    public void testTooManyConstructors() {
         parser.parse(file("/test.yml"), TooManyConstructors.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testWrongType()  {
+    public void testWrongType() {
         parser.parse(file("/test6.yml"), IdListWrongType.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testMapTypeFail()  {
+    public void testMapTypeFail() {
         parser.parse(file("/test2.yml"), StringPrimitives.class);
     }
 }
