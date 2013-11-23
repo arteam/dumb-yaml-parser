@@ -1,3 +1,5 @@
+package test.data;
+
 import annotation.Name;
 
 import java.util.Objects;
@@ -8,19 +10,14 @@ import java.util.Objects;
  *
  * @author Artem Prigoda
  */
-public class TooManyConstructors {
+public class StringPrimitives {
 
     private final String key;
     private final String trash;
 
-    public TooManyConstructors(@Name("key") String key, @Name("trash") String trash) {
+    public StringPrimitives(@Name("key") String key, @Name("trash") String trash) {
         this.key = key;
         this.trash = trash;
-    }
-
-    public TooManyConstructors(@Name("key") Integer key, @Name("trash") Integer trash) {
-        this.key = key.toString();
-        this.trash = trash.toString();
     }
 
     @Override
@@ -30,8 +27,8 @@ public class TooManyConstructors {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TooManyConstructors) {
-            TooManyConstructors that = (TooManyConstructors) obj;
+        if (obj instanceof StringPrimitives) {
+            StringPrimitives that = (StringPrimitives) obj;
             return Objects.equals(key, that.key) &&
                     Objects.equals(trash, that.trash);
         }

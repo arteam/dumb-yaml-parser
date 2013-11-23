@@ -1,5 +1,6 @@
 import org.junit.Assert;
 import org.junit.Test;
+import test.data.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import static util.FileUtils.file;
  */
 public class YamlObjectTest {
 
-    ObjectParser parser = new ObjectParser();
+    Yaml parser = new Yaml();
 
     @Test
     public void testParseStringPrimitives()  {

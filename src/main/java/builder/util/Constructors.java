@@ -1,13 +1,19 @@
+package builder.util;
+
 import java.lang.reflect.Constructor;
 
 /**
  * Date: 11/23/13
  * Time: 12:01 AM
+ * Utils for work with constructors
  *
  * @author Artem Prigoda
  */
 public class Constructors {
 
+    /**
+     * Get actual constructor from class. Default constructor has more high priority
+     */
     @SuppressWarnings("unchecked")
     public <T> Constructor<T> getConstructor(Class<T> clazz) {
         Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
