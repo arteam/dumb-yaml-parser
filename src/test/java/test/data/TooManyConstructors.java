@@ -1,3 +1,5 @@
+package test.data;
+
 import annotation.Name;
 
 import java.util.Objects;
@@ -8,14 +10,19 @@ import java.util.Objects;
  *
  * @author Artem Prigoda
  */
-public class WrongStringPrimitives {
+public class TooManyConstructors {
 
     private final String key;
     private final String trash;
 
-    public WrongStringPrimitives(@Name("key1") String key, @Name("trash") String trash) {
+    public TooManyConstructors(@Name("key") String key, @Name("trash") String trash) {
         this.key = key;
         this.trash = trash;
+    }
+
+    public TooManyConstructors(@Name("key") Integer key, @Name("trash") Integer trash) {
+        this.key = key.toString();
+        this.trash = trash.toString();
     }
 
     @Override
@@ -25,8 +32,8 @@ public class WrongStringPrimitives {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof WrongStringPrimitives) {
-            WrongStringPrimitives that = (WrongStringPrimitives) obj;
+        if (obj instanceof TooManyConstructors) {
+            TooManyConstructors that = (TooManyConstructors) obj;
             return Objects.equals(key, that.key) &&
                     Objects.equals(trash, that.trash);
         }

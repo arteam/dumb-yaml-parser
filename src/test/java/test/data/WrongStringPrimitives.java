@@ -1,3 +1,5 @@
+package test.data;
+
 import annotation.Name;
 
 import java.util.Objects;
@@ -8,12 +10,12 @@ import java.util.Objects;
  *
  * @author Artem Prigoda
  */
-public class StringPrimitives {
+public class WrongStringPrimitives {
 
     private final String key;
     private final String trash;
 
-    public StringPrimitives(@Name("key") String key, @Name("trash") String trash) {
+    public WrongStringPrimitives(@Name("key1") String key, @Name("trash") String trash) {
         this.key = key;
         this.trash = trash;
     }
@@ -25,8 +27,8 @@ public class StringPrimitives {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof StringPrimitives) {
-            StringPrimitives that = (StringPrimitives) obj;
+        if (obj instanceof WrongStringPrimitives) {
+            WrongStringPrimitives that = (WrongStringPrimitives) obj;
             return Objects.equals(key, that.key) &&
                     Objects.equals(trash, that.trash);
         }

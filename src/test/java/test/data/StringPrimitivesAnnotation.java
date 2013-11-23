@@ -1,3 +1,5 @@
+package test.data;
+
 import annotation.Name;
 
 import java.util.Objects;

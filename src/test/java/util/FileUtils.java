@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 public class FileUtils {
 
     public static String file(String fileName) {
-        String file = YamlParserTest.class.getResource(fileName).getFile();
+        String file = FileUtils.class.getResource(fileName).getFile();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             int size = (int) Files.size(Paths.get(file));
             char[] buf = new char[size];

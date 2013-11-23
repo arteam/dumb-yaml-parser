@@ -1,3 +1,7 @@
+import domain.YamlList;
+import domain.YamlMap;
+import domain.YamlObject;
+import domain.YamlPrimitive;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -15,7 +19,7 @@ import static util.FileUtils.file;
  */
 public class YamlParserTest {
 
-    YamlParser parser = new YamlParser();
+    Yaml parser = new Yaml();
 
     @Test
     public void testParseBaseYaml()  {

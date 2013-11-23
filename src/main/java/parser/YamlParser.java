@@ -1,3 +1,10 @@
+package parser;
+
+import domain.YamlList;
+import domain.YamlMap;
+import domain.YamlObject;
+import domain.YamlPrimitive;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -5,6 +12,7 @@ import java.util.regex.Pattern;
 /**
  * Date: 11/19/13
  * Time: 9:56 PM
+ * YAML strings parser
  *
  * @author Artem Prigoda
  */
@@ -13,6 +21,9 @@ public class YamlParser {
     private static final Pattern PATTERN = Pattern.compile("^(\\s*)(\\S+)\\s*:+\\s*([^#]*).*$");
     private static final Pattern COMMENT = Pattern.compile("\\d*#.*");
 
+    /**
+     * Parse YAML string to object tree representation
+     */
     public YamlMap parse(String yaml) {
         List<String> lines = Arrays.asList(yaml.split("\n"));
         if (lines.size() == 0)
@@ -29,8 +40,19 @@ public class YamlParser {
         return new YamlMap(map);
     }
 
+    /**
+     * Analyze current line and decide what parser should do
+     *
+     * @param lines          All lines
+     * @param pos            current line number
+     * @param rootDelimiters level of previous branch
+     * @param map            previous branch map
+     * @return new parser step
+     */
     private ParserNewStep analyze(List<String> lines, int pos, int rootDelimiters, Map<String, YamlObject> map) {
-        if (pos > lines.size() - 1) return new ParserNewStep(false, pos);
+        if (pos > lines.size() - 1)
+            return new ParserNewStep(false, pos);
+
         String line = lines.get(pos);
         Matcher matcher = PATTERN.matcher(line);
         if (!matcher.find()) {
@@ -44,7 +66,11 @@ public class YamlParser {
         String value = matcher.group(3).trim();
         if (amountDelimiters > rootDelimiters) {
             if (!value.isEmpty()) {
-                return parsePrimitive(pos, map, key, value);
+                if (map.containsKey(key)) {
+                    throw new IllegalArgumentException("Map " + map + " already contains key " + key);
+                }
+                map.put(key, parseStringValue(value));
+                return new ParserNewStep(true, pos + 1);
             } else {
                 Map<String, YamlObject> childMap = new HashMap<>();
                 ParserNewStep newStep;
@@ -60,14 +86,16 @@ public class YamlParser {
                 map.put(key, new YamlMap(childMap));
                 return new ParserNewStep(true, nextPos);
             }
+        } else {
+            // This means child level has ended and we jump to upper level
+            return new ParserNewStep(false, pos);
         }
-        return new ParserNewStep(false, pos);
     }
 
-    private ParserNewStep parsePrimitive(int pos, Map<String, YamlObject> map, String key, String value) {
-        if (map.containsKey(key)) {
-            throw new IllegalArgumentException("Map " + map + " already contains key " + key);
-        }
+    /**
+     * Parse string value (usually primitive but could be list and map as well)
+     */
+    private YamlObject parseStringValue(String value) {
         // Apparently regexp validation should be here
         if (value.startsWith("[") && value.endsWith("]")) {
             String[] split = value.substring(1, value.length() - 1).split(",");
@@ -75,7 +103,7 @@ public class YamlParser {
             for (String s : split) {
                 list.add(new YamlPrimitive(s.trim()));
             }
-            map.put(key, new YamlList(list));
+            return new YamlList(list);
         } else if (value.startsWith("{") && value.endsWith("}")) {
             String[] split = value.substring(1, value.length() - 1).split(",");
             Map<String, YamlObject> childMap = new HashMap<>();
@@ -85,10 +113,9 @@ public class YamlParser {
                 String childValue = keyValue[1].trim();
                 childMap.put(childKey, new YamlPrimitive(childValue));
             }
-            map.put(key, new YamlMap(childMap));
+            return new YamlMap(childMap);
         } else {
-            map.put(key, new YamlPrimitive(value));
+            return new YamlPrimitive(value);
         }
-        return new ParserNewStep(true, pos + 1);
     }
 }

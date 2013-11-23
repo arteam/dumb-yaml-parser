@@ -1,4 +1,7 @@
+package builder;
+
 import annotation.Name;
+import builder.util.Types;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -10,6 +13,7 @@ import java.util.Map;
 /**
  * Date: 11/21/13
  * Time: 11:17 PM
+ * Arguments resolver from constructor
  *
  * @author Artem Prigoda
  */
@@ -17,6 +21,10 @@ public class AnnotationResolver {
 
     private Types typesUtil = new Types();
 
+    /**
+     * Parse annotations from constructor args and
+     * build map with info about arguments position and their actual types
+     */
     public Map<String, ParamInfo> lookupParameterNames(Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
         Type[] genericTypes = constructor.getGenericParameterTypes();
