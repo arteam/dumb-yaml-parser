@@ -1,6 +1,7 @@
 package org.dumb.yaml.builder;
 
 import org.dumb.yaml.annotation.Name;
+import org.dumb.yaml.annotation.Names;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -16,7 +17,7 @@ import java.util.Map;
  *
  * @author Artem Prigoda
  */
-class AnnotationResolver {
+public class AnnotationResolver {
 
     private Types typesUtil = new Types();
 
@@ -28,40 +29,56 @@ class AnnotationResolver {
         Class<?>[] types = constructor.getParameterTypes();
         Type[] genericTypes = constructor.getGenericParameterTypes();
         Annotation[][] anns = constructor.getParameterAnnotations();
+        String[] namesParams = getNamesParams(constructor);
 
         if (types.length == 0) return Collections.emptyMap();
 
         Map<String, ParamInfo> paramTypes = new LinkedHashMap<String, ParamInfo>();
         for (int i = 0; i < types.length; i++) {
-            boolean hasNameAnnotation = false;
-            for (int j = 0; j < anns[i].length; j++) {
-                Annotation ann = anns[i][j];
-                if (!isNamed(ann)) continue;
-
-                String namedValue = getNamedValue(ann);
-                if (paramTypes.containsKey(namedValue)) {
-                    throw new IllegalArgumentException("Constructor " + constructor +
-                            " has 2 params with the same name name=" + namedValue);
-                }
-
-                Type[] actualTypes = typesUtil.getActualTypes(genericTypes[i]);
-                paramTypes.put(namedValue, new ParamInfo(i, types[i], actualTypes, anns[i]));
-                hasNameAnnotation = true;
-                break;
+            String namedValue = null;
+            // If @Names annotation present then use it
+            if (namesParams != null && namesParams.length > i) {
+                namedValue = namesParams[i];
+            } else {
+                Name name = getAnnotation(anns[i], Name.class);
+                if (name != null) namedValue = name.value();
             }
-            if (!hasNameAnnotation) {
+            if (namedValue == null) {
                 throw new IllegalArgumentException("Name not set for " + (i + 1) + " param in " + constructor);
             }
+            if (paramTypes.containsKey(namedValue)) {
+                throw new IllegalArgumentException("Constructor " + constructor +
+                        " has 2 params with the same name name=" + namedValue);
+            }
+            Type[] actualTypes = typesUtil.getActualTypes(genericTypes[i]);
+            paramTypes.put(namedValue, new ParamInfo(i, types[i], actualTypes, anns[i]));
         }
         return paramTypes;
     }
 
-
-    protected String getNamedValue(Annotation ann) {
-        return ((Name) ann).value();
+    /**
+     * Parse parameters from @Names annotation on class or constructor
+     */
+    private String[] getNamesParams(Constructor<?> constructor) {
+        Names constructorNames = getAnnotation(constructor.getDeclaredAnnotations(), Names.class);
+        Names classNames = getAnnotation(constructor.getDeclaringClass().getDeclaredAnnotations(), Names.class);
+        if (constructorNames != null && classNames != null) {
+            throw new IllegalStateException("Annotation @Names can be present either on a class or on a constructor");
+        }
+        if (constructorNames == null && classNames == null) {
+            return null;
+        }
+        return (classNames != null ? classNames : constructorNames).value();
     }
 
-    protected boolean isNamed(Annotation ann) {
-        return ann.annotationType().equals(Name.class);
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> T getAnnotation(Annotation[] array, Class<T> clazz) {
+        if (array == null) return null;
+        for (Annotation a : array) {
+            if (a.annotationType().equals(clazz)) {
+                return (T) a;
+            }
+        }
+        return null;
     }
 }

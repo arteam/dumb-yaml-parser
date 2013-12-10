@@ -2,6 +2,7 @@ package org.dumb.yaml.domain;
 
 import org.dumb.yaml.annotation.DateConverter;
 import org.dumb.yaml.annotation.EnumConverter;
+import org.dumb.yaml.builder.AnnotationResolver;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -9,6 +10,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
+
+import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
 
 /**
  * Date: 11/19/13
@@ -33,8 +36,8 @@ public class YamlPrimitive implements YamlObject {
             if (Enum.class.isAssignableFrom(type)) {
                 return castToEnum(type, annotations);
             } else if (type == Date.class) {
-                return castToDate(type, annotations);
-            }  else {
+                return castToDate(annotations);
+            } else {
                 throw new IllegalArgumentException("Unable represent " + type + " as plain value");
             }
         }
@@ -75,14 +78,8 @@ public class YamlPrimitive implements YamlObject {
      * Cast to enum based on valueOf method from annotation
      */
     private Object castToEnum(Class<?> type, Annotation[] annotations) {
-        String valueOfMethod = "valueOf";
-        for (Annotation ann : annotations) {
-            if (ann.annotationType() == EnumConverter.class) {
-                EnumConverter enumConverter = (EnumConverter) ann;
-                valueOfMethod = enumConverter.value();
-                break;
-            }
-        }
+        EnumConverter enumConverter = getAnnotation(annotations, EnumConverter.class);
+        String valueOfMethod = enumConverter != null ? enumConverter.value() : "valueOf";
         try {
             Method method = type.getMethod(valueOfMethod, String.class);
             method.setAccessible(true);
@@ -99,15 +96,9 @@ public class YamlPrimitive implements YamlObject {
     /**
      * Cast to date based on format from annotation
      */
-    private Object castToDate(Class<?> type, Annotation[] annotations) {
-        String dateFormat = "yyyy-MM-dd HH:mm:ss";
-        for (Annotation ann : annotations) {
-            if (ann.annotationType() == DateConverter.class) {
-                DateConverter enumConverter = (DateConverter) ann;
-                dateFormat = enumConverter.value();
-                break;
-            }
-        }
+    private Object castToDate(Annotation[] annotations) {
+        DateConverter dateConverter = getAnnotation(annotations, DateConverter.class);
+        String dateFormat = dateConverter != null ? dateConverter.value() : "yyyy-MM-dd HH:mm:ss";
 
         try {
             return new SimpleDateFormat(dateFormat).parse(value);

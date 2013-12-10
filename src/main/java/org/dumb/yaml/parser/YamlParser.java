@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * Date: 11/19/13
  * Time: 9:56 PM
- * YAML strings parser
+ * YAML text parser
  *
  * @author Artem Prigoda
  */
@@ -22,7 +22,7 @@ public class YamlParser {
     private static final Pattern COMMENT = Pattern.compile("\\d*#.*");
 
     /**
-     * Parse YAML string to object tree representation
+     * Parse YAML string to an object tree representation
      */
     public YamlMap parse(List<String> lines) {
         if (lines.size() == 0)
@@ -40,13 +40,13 @@ public class YamlParser {
     }
 
     /**
-     * Analyze current line and decide what org.dumb.yaml.parser should do
+     * Analyze a current line and decide what parser should to do next
      *
-     * @param lines          All lines
+     * @param lines          all lines
      * @param pos            current line number
      * @param rootDelimiters level of previous branch
      * @param map            previous branch map
-     * @return new org.dumb.yaml.parser step
+     * @return new parser step
      */
     private ParserNewStep analyze(List<String> lines, int pos, int rootDelimiters, Map<String, YamlObject> map) {
         if (pos > lines.size() - 1)
@@ -74,7 +74,7 @@ public class YamlParser {
                 Map<String, YamlObject> childMap = new HashMap<String, YamlObject>();
                 ParserNewStep newStep;
                 int nextPos = pos + 1;
-                // Iterate while org.dumb.yaml.parser not jumped to upper level
+                // Iterate while parser not jumped to upper level
                 do {
                     newStep = analyze(lines, nextPos, amountDelimiters, childMap);
                     nextPos = newStep.pos;
@@ -86,7 +86,7 @@ public class YamlParser {
                 return new ParserNewStep(true, nextPos);
             }
         } else {
-            // This means child level has ended and we jump to upper level
+            // This means a child level has ended and we jump to an upper level
             return new ParserNewStep(false, pos);
         }
     }
@@ -95,7 +95,7 @@ public class YamlParser {
      * Parse string value (usually primitive but could be list and map as well)
      */
     private YamlObject parseStringValue(String value) {
-        // Apparently regexp validation should be here
+        // TODO Apparently regexp validation should be here
         if (value.startsWith("[") && value.endsWith("]")) {
             String[] split = value.substring(1, value.length() - 1).split(",");
             List<YamlObject> list = new ArrayList<YamlObject>();

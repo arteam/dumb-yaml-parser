@@ -81,11 +81,29 @@ public class YamlObjectTest {
     }
 
     @Test
+    public void testNamesAnnotationOnClass() {
+        DBConfigNames test = parser.parse(file("/test4.yml"), DBConfigNames.class);
+        System.out.println(test);
+        Assert.assertEquals(test, new DBConfigNames(new HashMap<String, DBConfigNames.Database>() {{
+            put("cms", new DBConfigNames.Database("Post gres", "52.15:cms"));
+            put("sms", new DBConfigNames.Database("Post gres", "52.15:sms"));
+        }}));
+    }
+
+    @Test
     public void testPerson() {
         Person test = parser.parse(file("/test10.yml"), Person.class);
         System.out.println(test);
         Assert.assertEquals(test, new Person("\"foo\"", "foo@mail.com", 12,
                 Arrays.asList(Person.JobType.VOD, Person.JobType.TV), Person.Network.OTT));
+    }
+
+    @Test
+    public void testPersonNamesOnConstructor() {
+        PersonNames test = parser.parse(file("/test10.yml"), PersonNames.class);
+        System.out.println(test);
+        Assert.assertEquals(test, new PersonNames("\"foo\"", "foo@mail.com", 12,
+                Arrays.asList(PersonNames.JobType.VOD, PersonNames.JobType.TV), PersonNames.Network.OTT));
     }
 
     @Test
@@ -119,5 +137,25 @@ public class YamlObjectTest {
     @Test(expected = IllegalArgumentException.class)
     public void testMapTypeFail() {
         parser.parse(file("/test2.yml"), StringPrimitives.class);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDoubleNames() {
+        parser.parse(file("/test6.yml"), IdListDoubleNames.class);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testParseStringPrimitivesNamesNoConstructor() {
+       parser.parse(file("/test.yml"), StringPrimitivesNames.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseStringPrimitivesEmptyNames() {
+        parser.parse(file("/test.yml"), StringPrimitivesEmptyNames.class);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseStringPrimitivesIncorrectNames() {
+        parser.parse(file("/test.yml"), StringPrimitivesIncorrectNames.class);
     }
 }

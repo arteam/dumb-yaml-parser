@@ -1,13 +1,21 @@
 package org.dumb.yaml.builder;
 
 import org.dumb.yaml.annotation.Name;
-import org.dumb.yaml.domain.*;
+import org.dumb.yaml.annotation.Names;
+import org.dumb.yaml.domain.YamlList;
+import org.dumb.yaml.domain.YamlMap;
+import org.dumb.yaml.domain.YamlObject;
+import org.dumb.yaml.domain.YamlPrimitive;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
 
 /**
  * Date: 11/21/13
@@ -28,6 +36,11 @@ public class ObjectBuilder {
     public <T> T build(YamlMap yamlMap, Class<T> clazz) {
         Constructor<T> constructor = constructors.getConstructor(clazz);
         if (constructor.getParameterTypes().length == 0) {
+            if (getAnnotation(clazz.getDeclaredAnnotations(), Names.class) != null
+                    || getAnnotation(constructor.getDeclaredAnnotations(), Names.class) != null) {
+                throw new IllegalStateException("Annotation @Names can be present only on a class " +
+                        "with a constructor with parameters");
+            }
             return buildByFields(yamlMap, constructor);
         } else {
             return buildByConstructor(yamlMap, constructor);
