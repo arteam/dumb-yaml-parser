@@ -1,8 +1,8 @@
 package org.dumb.yaml.builder;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.*;
 
 /**
@@ -42,5 +42,14 @@ class Types {
             return new HashSet<Object>();
         }
         throw new IllegalStateException("Unknown type " + type);
+    }
+
+    public Class toClass(Type type) {
+        if (type instanceof Class) return (Class) type;
+        if (type instanceof WildcardType) {
+            Type[] upperBounds = ((WildcardType) type).getUpperBounds();
+            return (Class) upperBounds[0];
+        }
+        throw new IllegalStateException("Unsupported type: " + type);
     }
 }

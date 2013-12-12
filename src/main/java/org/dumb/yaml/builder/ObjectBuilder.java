@@ -142,7 +142,7 @@ public class ObjectBuilder {
                     throw new IllegalArgumentException("Maps can have only Strings as keys, not " + actualTypes[0]);
                 }
                 Type actualType = actualTypes[1];  // Map value
-                map.put(key, typedValue(value, (Class<?>) actualType, types.getActualTypes(actualType), annotations));
+                map.put(key, typedValue(value, types.toClass(actualType), types.getActualTypes(actualType), annotations));
             }
             return map;
         } else {
