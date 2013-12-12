@@ -4,7 +4,7 @@ import org.dumb.yaml.annotation.Name;
 import org.dumb.yaml.annotation.Names;
 
 import java.util.Map;
-import java.util.Objects;
+import org.dumb.yaml.util.Objects;
 
 /**
  * Date: 11/22/13

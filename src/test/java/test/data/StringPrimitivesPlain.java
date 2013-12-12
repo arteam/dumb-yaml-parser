@@ -1,6 +1,6 @@
 package test.data;
 
-import java.util.Objects;
+import org.dumb.yaml.util.Objects;
 
 /**
  * Date: 11/21/13

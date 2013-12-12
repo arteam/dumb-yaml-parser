@@ -1,7 +1,7 @@
 package org.dumb.yaml.domain;
 
 import java.util.Map;
-import java.util.Objects;
+import org.dumb.yaml.util.Objects;
 
 /**
  * Date: 11/19/13
