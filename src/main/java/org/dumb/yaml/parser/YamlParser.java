@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 public class YamlParser {
 
     private static final Pattern PATTERN = Pattern.compile("^(\\s*)(\\S+)\\s*:+\\s*([^#]*).*$");
+    private static final Pattern LIST_KEY_VALUE = Pattern.compile("^\\s*(\\S+)\\s*:\\s*(\\S*)\\s*$");
+    private static final Pattern LIST = Pattern.compile("^(\\s*)-\\s*([^#]*).*$");
     private static final Pattern COMMENT = Pattern.compile("\\d*#.*");
 
     /**
@@ -29,9 +31,10 @@ public class YamlParser {
             throw new IllegalArgumentException("No data to parse");
 
         Map<String, YamlObject> map = new HashMap<String, YamlObject>();
+        List<YamlObject> list = new ArrayList<YamlObject>();
         int pos = 0;
         while (pos < lines.size()) {
-            ParserNewStep rv = analyze(lines, pos, -1, map);
+            ParserNewStep rv = analyze(lines, pos, -1, map, list);
             if (!rv.ifContinue) throw new IllegalStateException("Delimiter problems");
             pos = rv.pos;
         }
@@ -48,7 +51,8 @@ public class YamlParser {
      * @param map            previous branch map
      * @return new parser step
      */
-    private ParserNewStep analyze(List<String> lines, int pos, int rootDelimiters, Map<String, YamlObject> map) {
+    private ParserNewStep analyze(List<String> lines, int pos, int rootDelimiters, Map<String, YamlObject> map,
+                                  List<YamlObject> list) {
         if (pos > lines.size() - 1)
             return new ParserNewStep(false, pos);
 
@@ -57,6 +61,13 @@ public class YamlParser {
         if (!matcher.find()) {
             if (line.trim().isEmpty() || COMMENT.matcher(line).find()) {
                 return new ParserNewStep(true, pos + 1);
+            }
+            Matcher lineMatcher = LIST.matcher(line);
+            if (lineMatcher.find()) {
+                if (lineMatcher.group(1).length() <= rootDelimiters) {
+                    return new ParserNewStep(false, pos);
+                }
+                return startParseList(lines, pos, rootDelimiters, list);
             }
             throw new IllegalArgumentException("Bad line: " + line);
         }
@@ -72,17 +83,18 @@ public class YamlParser {
                 return new ParserNewStep(true, pos + 1);
             } else {
                 Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
+                List<YamlObject> childList = new ArrayList<YamlObject>();
                 ParserNewStep newStep;
                 int nextPos = pos + 1;
                 // Iterate while parser not jumped to upper level
                 do {
-                    newStep = analyze(lines, nextPos, amountDelimiters, childMap);
+                    newStep = analyze(lines, nextPos, amountDelimiters, childMap, childList);
                     nextPos = newStep.pos;
                 } while (newStep.ifContinue);
-                if (childMap.isEmpty()) {
+                if (childMap.isEmpty() && childList.isEmpty()) {
                     throw new IllegalArgumentException("Key " + key + " hasn't got values");
                 }
-                map.put(key, new YamlMap(childMap));
+                map.put(key, !childMap.isEmpty() ? new YamlMap(childMap) : new YamlList(childList));
                 return new ParserNewStep(true, nextPos);
             }
         } else {
@@ -90,6 +102,73 @@ public class YamlParser {
             return new ParserNewStep(false, pos);
         }
     }
+
+    private ParserNewStep parseList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
+        if (pos > lines.size() - 1)
+            return new ParserNewStep(false, pos);
+        String line = lines.get(pos);
+        Matcher lineMatcher = LIST.matcher(line);
+        if (!lineMatcher.find()) {
+            return new ParserNewStep(false, pos);
+        }
+        int amountDelimiters = lineMatcher.group(1).length();
+        String lv = lineMatcher.group(2);
+        if (amountDelimiters > rootDelimiters) {
+            // If value is primitive
+            if (!lv.contains(":") || lv.startsWith("{{") || lv.startsWith("[[")) {
+                list.add(parseStringValue(lv));
+                return new ParserNewStep(true, pos + 1);
+            }
+            // Otherwise key value list
+            Matcher matcher = LIST_KEY_VALUE.matcher(lv);
+            if (!matcher.find()) {
+                throw new RuntimeException();
+            }
+            String key = matcher.group(1);
+            String value = matcher.group(2);
+
+            Map<String, YamlObject> map = new LinkedHashMap<String, YamlObject>();
+            ParserNewStep newStep;
+            int nextPos = pos + 1;
+            // If plain key/value list
+            if (!value.isEmpty()) {
+                map.put(key, parseStringValue(value));
+                do {
+                    newStep = analyze(lines, nextPos, amountDelimiters, map, new ArrayList<YamlObject>());
+                    nextPos = newStep.pos;
+                } while (newStep.ifContinue);
+                list.add(new YamlMap(map));
+                return new ParserNewStep(true, nextPos);
+            }
+            // If it's root query
+            else {
+                Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
+                List<YamlObject> childList = new ArrayList<YamlObject>();
+                do {
+                    newStep = analyze(lines, nextPos, amountDelimiters, childMap, childList);
+                    nextPos = newStep.pos;
+                } while (newStep.ifContinue);
+                if (childMap.isEmpty() && childList.isEmpty()) {
+                    throw new IllegalArgumentException("Key " + key + " hasn't got values");
+                }
+                map.put(key, !childMap.isEmpty() ? new YamlMap(childMap) : new YamlList(childList));
+            }
+            return new ParserNewStep(true, nextPos);
+        } else {
+            return new ParserNewStep(false, pos);
+        }
+    }
+
+    private ParserNewStep startParseList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
+        ParserNewStep newStep;
+        int nextPos = pos;
+        do {
+            newStep = parseList(lines, nextPos, rootDelimiters, list);
+            nextPos = newStep.pos;
+        } while (newStep.ifContinue);
+        return new ParserNewStep(true, nextPos);
+    }
+
 
     /**
      * Parse string value (usually primitive but could be list and map as well)

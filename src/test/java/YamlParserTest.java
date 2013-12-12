@@ -155,4 +155,34 @@ public class YamlParserTest {
         }})));
     }
 
+    @Test
+    public void testPlainList() {
+        YamlMap yamlMap = parser.parse(file("/test12.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("colors", new YamlList(new ArrayList<YamlObject>(){{
+                add(new YamlPrimitive("orange"));
+                add(new YamlPrimitive("red"));
+                add(new YamlPrimitive("black"));
+            }}));
+        }})));
+    }
+
+    @Test
+    public void testComplexList() {
+        YamlMap yamlMap = parser.parse(file("/test13.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("servers", new YamlList(new ArrayList<YamlObject>(){{
+                add(new YamlMap(new HashMap<String, YamlObject>(){{
+                    put("key", new YamlPrimitive("1"));
+                    put("url", new YamlPrimitive("mwjb1.tv.megafon"));
+                }}));
+                add(new YamlMap(new HashMap<String, YamlObject>(){{
+                    put("key", new YamlPrimitive("2"));
+                    put("url", new YamlPrimitive("mwjb2.tv.megafon"));
+                }}));
+            }}));
+        }})));
+    }
 }
