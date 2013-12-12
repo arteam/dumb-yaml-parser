@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Objects;
+import org.dumb.yaml.util.Objects;
 
 import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
 

@@ -1,10 +1,9 @@
 package util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Date: 11/23/13
@@ -19,7 +18,7 @@ public class FileUtils {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
-            int size = (int) Files.size(Paths.get(file));
+            int size = (int) new File(relativeFileName(fileName)).length();
             char[] buf = new char[size];
             reader.read(buf);
             return new String(buf);
@@ -30,7 +29,7 @@ public class FileUtils {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         }
