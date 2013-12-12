@@ -71,7 +71,7 @@ public class YamlParser {
                 map.put(key, parseStringValue(value));
                 return new ParserNewStep(true, pos + 1);
             } else {
-                Map<String, YamlObject> childMap = new HashMap<String, YamlObject>();
+                Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
                 ParserNewStep newStep;
                 int nextPos = pos + 1;
                 // Iterate while parser not jumped to upper level
