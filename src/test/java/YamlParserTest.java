@@ -160,7 +160,7 @@ public class YamlParserTest {
         YamlMap yamlMap = parser.parse(file("/test12.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
-            put("colors", new YamlList(new ArrayList<YamlObject>(){{
+            put("colors", new YamlList(new ArrayList<YamlObject>() {{
                 add(new YamlPrimitive("orange"));
                 add(new YamlPrimitive("red"));
                 add(new YamlPrimitive("black"));
@@ -173,14 +173,39 @@ public class YamlParserTest {
         YamlMap yamlMap = parser.parse(file("/test13.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
-            put("servers", new YamlList(new ArrayList<YamlObject>(){{
-                add(new YamlMap(new HashMap<String, YamlObject>(){{
+            put("servers", new YamlList(new ArrayList<YamlObject>() {{
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
                     put("key", new YamlPrimitive("1"));
                     put("url", new YamlPrimitive("mwjb1.tv.megafon"));
                 }}));
-                add(new YamlMap(new HashMap<String, YamlObject>(){{
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
                     put("key", new YamlPrimitive("2"));
                     put("url", new YamlPrimitive("mwjb2.tv.megafon"));
+                }}));
+            }}));
+        }})));
+    }
+
+    @Test
+    public void testSuperComplexList() {
+        YamlMap yamlMap = parser.parse(file("/test14.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("key", new YamlList(new ArrayList<YamlObject>() {{
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
+                    put("just", new YamlPrimitive("write some"));
+                }}));
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
+                    put("yaml", new YamlList(new ArrayList<YamlObject>() {{
+                        add(new YamlList(new ArrayList<YamlObject>() {{
+                            add(new YamlPrimitive("here"));
+                            add(new YamlPrimitive("and"));
+                        }}));
+                        add(new YamlMap(new HashMap<String, YamlObject>(){{
+                            put("it", new YamlPrimitive("updates"));
+                            put("in", new YamlPrimitive("real-time"));
+                        }}));
+                    }}));
                 }}));
             }}));
         }})));

@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class YamlParser {
 
     private static final Pattern PATTERN = Pattern.compile("^(\\s*)(\\S+)\\s*:+\\s*([^#]*).*$");
-    private static final Pattern LIST_KEY_VALUE = Pattern.compile("^\\s*(\\S+)\\s*:\\s*(\\S*)\\s*$");
+    private static final Pattern LIST_KEY_VALUE = Pattern.compile("^\\s*(\\S+)\\s*:\\s*(.*)\\s*$");
     private static final Pattern LIST = Pattern.compile("^(\\s*)-\\s*([^#]*).*$");
     private static final Pattern COMMENT = Pattern.compile("\\d*#.*");
 
@@ -115,7 +115,7 @@ public class YamlParser {
         String lv = lineMatcher.group(2);
         if (amountDelimiters > rootDelimiters) {
             // If value is primitive
-            if (!lv.contains(":") || lv.startsWith("{{") || lv.startsWith("[[")) {
+            if (!lv.contains(":") || lv.startsWith("{") || lv.startsWith("[")) {
                 list.add(parseStringValue(lv));
                 return new ParserNewStep(true, pos + 1);
             }
@@ -130,18 +130,15 @@ public class YamlParser {
             Map<String, YamlObject> map = new LinkedHashMap<String, YamlObject>();
             ParserNewStep newStep;
             int nextPos = pos + 1;
-            // If plain key/value list
             if (!value.isEmpty()) {
+                // If plain key/value list
                 map.put(key, parseStringValue(value));
                 do {
                     newStep = analyze(lines, nextPos, amountDelimiters, map, new ArrayList<YamlObject>());
                     nextPos = newStep.pos;
                 } while (newStep.ifContinue);
-                list.add(new YamlMap(map));
-                return new ParserNewStep(true, nextPos);
-            }
-            // If it's root query
-            else {
+            } else {
+                // If it's root query
                 Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
                 List<YamlObject> childList = new ArrayList<YamlObject>();
                 do {
@@ -153,6 +150,7 @@ public class YamlParser {
                 }
                 map.put(key, !childMap.isEmpty() ? new YamlMap(childMap) : new YamlList(childList));
             }
+            list.add(new YamlMap(map));
             return new ParserNewStep(true, nextPos);
         } else {
             return new ParserNewStep(false, pos);
