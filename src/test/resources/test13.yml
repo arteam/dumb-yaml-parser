@@ -1,0 +1,5 @@
+servers:
+  - key: 1
+    url: mwjb1.tv.megafon
+  - key: 2
+    url: mwjb2.tv.megafon
