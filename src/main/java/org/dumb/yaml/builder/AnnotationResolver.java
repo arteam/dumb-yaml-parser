@@ -28,7 +28,7 @@ class AnnotationResolver {
      * build map with info about arguments position and their actual types
      */
     @NotNull
-    public Map<String, ParamInfo> lookupParameterNames(@NotNull Constructor<?> constructor) {
+    Map<String, ParamInfo> lookupParameterNames(@NotNull Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
         Type[] genericTypes = constructor.getGenericParameterTypes();
         Annotation[][] anns = constructor.getParameterAnnotations();
@@ -75,7 +75,10 @@ class AnnotationResolver {
         return (classNames != null ? classNames : constructorNames).value();
     }
 
-    public boolean hasNameAnnotations(@NotNull Constructor c) {
+    /**
+     * Check that constructor is mapped for allocation(has @Name or @Names annotations)
+     */
+    boolean hasNameAnnotations(@NotNull Constructor c) {
         if (hasAnnotation(c.getDeclaredAnnotations(), Names.class) ||
                 hasAnnotation(c.getDeclaringClass().getDeclaredAnnotations(), Names.class)) {
             return true;

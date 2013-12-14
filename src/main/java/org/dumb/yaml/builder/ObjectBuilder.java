@@ -97,9 +97,9 @@ public class ObjectBuilder {
             ParamInfo paramInfo = argNameTypes.remove(entry.getKey());
             if (paramInfo == null) continue;
 
-            Object valueToInject = typedValue(entry.getValue(), paramInfo.getType(),
-                    paramInfo.getActualTypes(), paramInfo.getAnnotations());
-            args[paramInfo.getPos()] = valueToInject;
+            Object valueToInject = typedValue(entry.getValue(), paramInfo.type,
+                    paramInfo.actualTypes, paramInfo.annotations);
+            args[paramInfo.pos] = valueToInject;
         }
         if (!argNameTypes.isEmpty()) {
             throw new IllegalArgumentException(argNameTypes.keySet() + " are not set for " + constructor);

@@ -4,13 +4,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
  * Date: 12/14/13
  * Time: 11:40 PM
- * Unsafe allocator if we don't want to use constructors with params
+ * Unsafe allocator if we don't want/are not able to use constructors with params
  *
  * @author Artem Prigoda
  */

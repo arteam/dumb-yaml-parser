@@ -18,7 +18,7 @@ import java.util.List;
 class StreamAdapter {
 
     @NotNull
-    public List<String> convert(@NotNull File file) {
+    List<String> convert(@NotNull File file) {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
@@ -37,13 +37,13 @@ class StreamAdapter {
     }
 
     @NotNull
-    public List<String> convert(@NotNull InputStream stream) {
+    List<String> convert(@NotNull InputStream stream) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         return convert(reader);
     }
 
     @NotNull
-    public List<String> convert(@NotNull BufferedReader reader) {
+    List<String> convert(@NotNull BufferedReader reader) {
         List<String> lines = new ArrayList<String>();
         String line;
         try {
@@ -57,7 +57,7 @@ class StreamAdapter {
     }
 
     @NotNull
-    public List<String> convert(@Nullable String yamlText) {
+    List<String> convert(@Nullable String yamlText) {
         if (yamlText == null) return new ArrayList<String>();
         return Arrays.asList(yamlText.split("\n"));
     }

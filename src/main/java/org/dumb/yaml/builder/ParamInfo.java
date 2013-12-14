@@ -16,46 +16,27 @@ class ParamInfo {
     /**
      * Argument position in constructor
      */
-    private int pos;
+    int pos;
 
     /**
      * Type of argument
      */
     @NotNull
-    private Class<?> type;
+    Class<?> type;
 
     /**
      * Actual types (if type is collection: List, Map)
      */
     @NotNull
-    private Type[] actualTypes;
+    Type[] actualTypes;
 
     @NotNull
-    private Annotation[] annotations;
+    Annotation[] annotations;
 
-    public ParamInfo(int pos, @NotNull Class<?> type, @NotNull Type[] actualTypes, @NotNull Annotation[] annotations) {
+    ParamInfo(int pos, @NotNull Class<?> type, @NotNull Type[] actualTypes, @NotNull Annotation[] annotations) {
         this.pos = pos;
         this.type = type;
         this.actualTypes = actualTypes;
         this.annotations = annotations;
-    }
-
-    public int getPos() {
-        return pos;
-    }
-
-    @NotNull
-    public Class<?> getType() {
-        return type;
-    }
-
-    @NotNull
-    public Type[] getActualTypes() {
-        return actualTypes;
-    }
-
-    @NotNull
-    public Annotation[] getAnnotations() {
-        return annotations;
     }
 }

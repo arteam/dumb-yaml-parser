@@ -19,7 +19,7 @@ class Constructors {
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public <T> Constructor<T> getConstructor(@NotNull Class<T> clazz) {
+    <T> Constructor<T> getConstructor(@NotNull Class<T> clazz) {
         Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
         Constructor<T> constructor = null;
         for (Constructor<T> c : constructors) {
@@ -40,7 +40,7 @@ class Constructors {
     }
 
     @NotNull
-    public <T> T newInstance(@NotNull Constructor<T> constructor, @Nullable Object... args) {
+    <T> T newInstance(@NotNull Constructor<T> constructor, @Nullable Object... args) {
         constructor.setAccessible(true);
         try {
             return constructor.newInstance(args);
