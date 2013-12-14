@@ -2,7 +2,7 @@ package test.data;
 
 import org.dumb.yaml.annotation.Name;
 
-import org.dumb.yaml.util.Objects;
+import util.Objects;
 
 /**
  * Date: 11/21/13

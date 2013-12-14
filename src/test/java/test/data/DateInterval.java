@@ -1,6 +1,7 @@
 package test.data;
 
 import org.dumb.yaml.annotation.DateConverter;
+import org.dumb.yaml.annotation.DateConverters;
 import org.dumb.yaml.annotation.Name;
 
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.Date;
  *
  * @author Artem Prigoda
  */
+@DateConverters(names = {"start_date"}, converters = {@DateConverter("yyyy-MM-dd HH:mm")})
 public class DateInterval {
 
     private final Date startDate;

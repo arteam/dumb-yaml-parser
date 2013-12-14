@@ -1,7 +1,6 @@
 package org.dumb.yaml.domain;
 
 import java.util.List;
-import org.dumb.yaml.util.Objects;
 
 /**
  * Date: 11/19/13
@@ -25,14 +24,14 @@ public class YamlList implements YamlObject {
     public boolean equals(Object o) {
         if (o instanceof YamlList) {
             YamlList that = (YamlList) o;
-            return Objects.equals(list, that.list);
+            return list == that.list || (list != null && list.equals(that.list));
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(list);
+        return list != null ? list.hashCode() : 0;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package org.dumb.yaml.domain;
 
 import java.util.Map;
-import org.dumb.yaml.util.Objects;
 
 /**
  * Date: 11/19/13
@@ -25,14 +24,14 @@ public class YamlMap implements YamlObject {
     public boolean equals(Object o) {
         if (o instanceof YamlMap) {
           YamlMap that = (YamlMap) o;
-          return Objects.equals(map, that.map);
+            return map == that.map || (map != null && map.equals(that.map));
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(map);
+        return map != null ? map.hashCode() : 0;
     }
 
     @Override
