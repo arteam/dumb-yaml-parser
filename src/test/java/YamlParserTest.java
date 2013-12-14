@@ -93,7 +93,7 @@ public class YamlParserTest {
         YamlMap yamlMap = parser.parse(reader);
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
-            put("name", new YamlPrimitive("\"foo\""));
+            put("name", new YamlPrimitive("foo"));
             put("email", new YamlPrimitive("foo@mail.com"));
             put("age", new YamlPrimitive("12"));
             put("birth", new YamlPrimitive("Jun 01, 1985"));
@@ -263,8 +263,17 @@ public class YamlParserTest {
         }})));
     }
 
-    //<YamlMap{map={it=YamlList{list=[YamlPrimitive{value=1}, YamlPrimitive{value=2}, YamlPrimitive{value=3}]}, key=YamlList{list=[YamlMap{map={}}, YamlPrimitive{value=4}, YamlPrimitive{value=5}]}}}>
-    //<YamlMap{map={key=YamlList{list=[YamlMap{map={it=YamlList{list=[YamlPrimitive{value=1}, YamlPrimitive{value=2}, YamlPrimitive{value=3}]}}}, YamlPrimitive{value=4}, YamlPrimitive{value=5}]}}}>
-
-    //
+    @Test
+    public void testStringEscaping() {
+        YamlMap yamlMap = parser.parse(file("/test18.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>(){{
+            put("key", new YamlPrimitive(" val 1 "));
+            put("val", new YamlPrimitive("val:2"));
+            put("empty", new YamlPrimitive(""));
+            put("comment", new YamlPrimitive("1 # comment"));
+            put("comment2", new YamlPrimitive("1# comment"));
+            put("comment3", new YamlPrimitive("1"));
+        }})));
+    }
 }
