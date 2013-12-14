@@ -1,14 +1,9 @@
 package org.dumb.yaml.builder;
 
-import org.dumb.yaml.annotation.Name;
-import org.dumb.yaml.annotation.Names;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
 
 /**
  * Date: 11/23/13
@@ -23,7 +18,8 @@ class Constructors {
      * Get actual constructor from class. Default constructor has more high priority
      */
     @SuppressWarnings("unchecked")
-    public <T> Constructor<T> getConstructor(Class<T> clazz) {
+    @NotNull
+    public <T> Constructor<T> getConstructor(@NotNull Class<T> clazz) {
         Constructor<T>[] constructors = (Constructor<T>[]) clazz.getDeclaredConstructors();
         Constructor<T> constructor = null;
         for (Constructor<T> c : constructors) {
@@ -37,10 +33,14 @@ class Constructors {
             }
             constructor = c;
         }
+        if (constructor == null) {
+            throw new RuntimeException("Internal error. No constructors for " + clazz);
+        }
         return constructor;
     }
 
-    public <T> T newInstance(Constructor<T> constructor, Object... args) {
+    @NotNull
+    public <T> T newInstance(@NotNull Constructor<T> constructor, @Nullable Object... args) {
         constructor.setAccessible(true);
         try {
             return constructor.newInstance(args);

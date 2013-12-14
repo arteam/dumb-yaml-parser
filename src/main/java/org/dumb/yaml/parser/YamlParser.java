@@ -4,6 +4,8 @@ import org.dumb.yaml.domain.YamlList;
 import org.dumb.yaml.domain.YamlMap;
 import org.dumb.yaml.domain.YamlObject;
 import org.dumb.yaml.domain.YamlPrimitive;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -26,7 +28,8 @@ public class YamlParser {
     /**
      * Parse YAML string to an object tree representation
      */
-    public YamlMap parse(List<String> lines) {
+    @NotNull
+    public YamlMap parse(@NotNull List<String> lines) {
         if (lines.size() == 0)
             throw new IllegalArgumentException("No data to parse");
 
@@ -51,8 +54,9 @@ public class YamlParser {
      * @param map            previous branch map
      * @return new parser step
      */
-    private ParserNewStep analyze(List<String> lines, int pos, int rootDelimiters, Map<String, YamlObject> map,
-                                  List<YamlObject> list) {
+    @NotNull
+    private ParserNewStep analyze(@NotNull List<String> lines, int pos, int rootDelimiters,
+                                  @NotNull Map<String, YamlObject> map, @NotNull List<YamlObject> list) {
         if (pos > lines.size() - 1)
             return new ParserNewStep(false, pos);
 
@@ -93,8 +97,10 @@ public class YamlParser {
     /**
      * Analyze map with key
      */
-    private ParserNewStep analyzeMap(List<String> lines, int pos,
-                                     int amountDelimiters, String key, Map<String, YamlObject> rootMap) {
+    @NotNull
+    private ParserNewStep analyzeMap(@NotNull List<String> lines, int pos,
+                                     int amountDelimiters, @NotNull String key,
+                                     @NotNull Map<String, YamlObject> rootMap) {
         Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
         List<YamlObject> childList = new ArrayList<YamlObject>();
         ParserNewStep newStep;
@@ -114,7 +120,9 @@ public class YamlParser {
         return new ParserNewStep(true, nextPos);
     }
 
-    private ParserNewStep analyzeList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
+    @NotNull
+    private ParserNewStep analyzeList(@NotNull List<String> lines, int pos, int rootDelimiters,
+                                      @NotNull List<YamlObject> list) {
         if (pos > lines.size() - 1)
             return new ParserNewStep(false, pos);
 
@@ -157,7 +165,9 @@ public class YamlParser {
         }
     }
 
-    private ParserNewStep startAnalyzeList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
+    @NotNull
+    private ParserNewStep startAnalyzeList(@NotNull List<String> lines, int pos, int rootDelimiters,
+                                           @NotNull List<YamlObject> list) {
         ParserNewStep newStep;
         int nextPos = pos;
         do {
@@ -170,7 +180,8 @@ public class YamlParser {
     /**
      * Parse string value (usually primitive but could be list and map as well)
      */
-    private YamlObject parseStringValue(String value) {
+    @NotNull
+    private YamlObject parseStringValue(@NotNull String value) {
         if (value.startsWith("[")) {
             if (!value.endsWith("]")) {
                 throw new IllegalArgumentException(value + " should have closed bracket");
@@ -206,7 +217,8 @@ public class YamlParser {
         }
     }
 
-    private static String deleteComment(String value) {
+    @NotNull
+    private String deleteComment(@NotNull String value) {
         // If comments are not escaping
         if (value.length() >= 2 && !(value.charAt(0) == '\'' && value.charAt(value.length() - 1) == '\'')
                 && !(value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"')) {

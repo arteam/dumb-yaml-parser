@@ -1,5 +1,7 @@
 package org.dumb.yaml.domain;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Map;
 
 /**
@@ -10,12 +12,14 @@ import java.util.Map;
  */
 public class YamlMap implements YamlObject {
 
+    @NotNull
     private Map<String, YamlObject> map;
 
-    public YamlMap(Map<String, YamlObject> map) {
+    public YamlMap(@NotNull Map<String, YamlObject> map) {
         this.map = map;
     }
 
+    @NotNull
     public Map<String, YamlObject> getMap() {
         return map;
     }
@@ -23,15 +27,15 @@ public class YamlMap implements YamlObject {
     @Override
     public boolean equals(Object o) {
         if (o instanceof YamlMap) {
-          YamlMap that = (YamlMap) o;
-            return map == that.map || (map != null && map.equals(that.map));
+            YamlMap that = (YamlMap) o;
+            return map.equals(that.map);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return map != null ? map.hashCode() : 0;
+        return map.hashCode();
     }
 
     @Override

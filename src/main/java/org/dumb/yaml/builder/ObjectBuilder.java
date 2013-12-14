@@ -6,6 +6,7 @@ import org.dumb.yaml.domain.YamlList;
 import org.dumb.yaml.domain.YamlMap;
 import org.dumb.yaml.domain.YamlObject;
 import org.dumb.yaml.domain.YamlPrimitive;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -34,7 +35,8 @@ public class ObjectBuilder {
     /**
      * Build an object representation based on YAML map
      */
-    public <T> T build(YamlMap yamlMap, Class<T> clazz) {
+    @NotNull
+    public <T> T build(@NotNull YamlMap yamlMap, @NotNull Class<T> clazz) {
         Constructor<T> constructor = constructors.getConstructor(clazz);
         if (constructor.getParameterTypes().length == 0) {
             if (getAnnotation(clazz.getDeclaredAnnotations(), Names.class) != null
@@ -60,7 +62,8 @@ public class ObjectBuilder {
     /**
      * Build an object by setting private fields
      */
-    private <T> T buildByFields(YamlMap yamlMap, T instance) {
+    @NotNull
+    private <T> T buildByFields(@NotNull YamlMap yamlMap, @NotNull T instance) {
         Map<String, YamlObject> map = yamlMap.getMap();
         try {
             Field[] declaredFields = instance.getClass().getDeclaredFields();
@@ -84,7 +87,8 @@ public class ObjectBuilder {
     /**
      * Build an object by invoking a constructor with parameters
      */
-    private <T> T buildByConstructor(YamlMap yamlMap, Constructor<T> constructor) {
+    @NotNull
+    private <T> T buildByConstructor(@NotNull YamlMap yamlMap, @NotNull Constructor<T> constructor) {
         Map<String, ParamInfo> argNameTypes = resolver.lookupParameterNames(constructor);
 
         Object[] args = new Object[argNameTypes.size()];
@@ -107,7 +111,9 @@ public class ObjectBuilder {
      * Convert yaml object to typed representation
      * If {@param type} is a collection then generic types passed to parameter {@param actualTypes}
      */
-    private Object typedValue(YamlObject yamlObject, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
+    @NotNull
+    private Object typedValue(@NotNull YamlObject yamlObject, @NotNull Class<?> type,
+                              @NotNull Type[] actualTypes, @NotNull Annotation[] annotations) {
         if (yamlObject instanceof YamlPrimitive) {
             return typedPrimitive((YamlPrimitive) yamlObject, type, annotations);
         } else if (yamlObject instanceof YamlMap) {
@@ -121,14 +127,18 @@ public class ObjectBuilder {
     /**
      * Cast YAML primitive to actual type
      */
-    private Object typedPrimitive(YamlPrimitive primitive, Class<?> type, Annotation[] annotations) {
+    @NotNull
+    private Object typedPrimitive(@NotNull YamlPrimitive primitive, @NotNull Class<?> type,
+                                  @NotNull Annotation[] annotations) {
         return primitive.cast(type, annotations);
     }
 
     /**
      * Convert YAML list to type-safe list
      */
-    private Object typedList(YamlList yamlList, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
+    @NotNull
+    private Object typedList(@NotNull YamlList yamlList, @NotNull Class<?> type,
+                             @NotNull Type[] actualTypes, @NotNull Annotation[] annotations) {
         Type actualType = actualTypes[0];
         Collection<Object> collection = types.newCollection(type);
         for (YamlObject subObject : yamlList.getList()) {
@@ -140,7 +150,9 @@ public class ObjectBuilder {
     /**
      * Convert YAML map to type-safe map or composite object
      */
-    private Object typedMap(YamlMap yamlMap, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
+    @NotNull
+    private Object typedMap(@NotNull YamlMap yamlMap, @NotNull Class<?> type,
+                            @NotNull Type[] actualTypes, @NotNull Annotation[] annotations) {
         if (Map.class.isAssignableFrom(type)) {
             // If inner map
             Map<Object, Object> map = new LinkedHashMap<Object, Object>();

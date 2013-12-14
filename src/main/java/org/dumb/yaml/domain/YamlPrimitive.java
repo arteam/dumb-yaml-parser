@@ -2,6 +2,8 @@ package org.dumb.yaml.domain;
 
 import org.dumb.yaml.annotation.DateConverter;
 import org.dumb.yaml.annotation.EnumConverter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -16,16 +18,18 @@ import java.util.Date;
  */
 public class YamlPrimitive implements YamlObject {
 
+    @NotNull
     private String value;
 
-    public YamlPrimitive(String value) {
+    public YamlPrimitive(@NotNull String value) {
         this.value = value;
     }
 
     /**
      * Cast object to extended types (Enum, Date...)
      */
-    public Object cast(Class<?> type, Annotation... annotations) {
+    @NotNull
+    public Object cast(@NotNull Class<?> type, @Nullable Annotation... annotations) {
         Object o = castToBaseType(type);
         if (o == null) {
             if (Enum.class.isAssignableFrom(type)) {
@@ -42,7 +46,8 @@ public class YamlPrimitive implements YamlObject {
     /**
      * Cast to base type
      */
-    private Object castToBaseType(Class<?> type) {
+    @Nullable
+    private Object castToBaseType(@NotNull Class<?> type) {
         try {
             if (type == String.class) {
                 return value;
@@ -72,7 +77,8 @@ public class YamlPrimitive implements YamlObject {
     /**
      * Cast to enum based on valueOf method from annotation
      */
-    private Object castToEnum(Class<?> type, Annotation[] annotations) {
+    @NotNull
+    private Object castToEnum(@NotNull Class<?> type, @Nullable Annotation[] annotations) {
         EnumConverter enumConverter = getAnnotation(annotations, EnumConverter.class);
         String valueOfMethod = enumConverter != null ? enumConverter.value() : "valueOf";
         try {
@@ -91,7 +97,8 @@ public class YamlPrimitive implements YamlObject {
     /**
      * Cast to date based on format from annotation
      */
-    private Object castToDate(Annotation[] annotations) {
+    @NotNull
+    private Object castToDate(@Nullable Annotation[] annotations) {
         DateConverter dateConverter = getAnnotation(annotations, DateConverter.class);
         String dateFormat = dateConverter != null ? dateConverter.value() : "yyyy-MM-dd HH:mm:ss";
 
@@ -107,14 +114,14 @@ public class YamlPrimitive implements YamlObject {
     public boolean equals(Object o) {
         if (o instanceof YamlPrimitive) {
             YamlPrimitive that = (YamlPrimitive) o;
-            return value == that.value || (value != null && value.equals(that.value));
+            return value.equals(that.value);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        return value.hashCode();
     }
 
     @Override
@@ -122,8 +129,9 @@ public class YamlPrimitive implements YamlObject {
         return "YamlPrimitive{value=" + value + "}";
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
-    private <T extends Annotation> T getAnnotation(Annotation[] array, Class<T> clazz) {
+    private <T extends Annotation> T getAnnotation(@Nullable Annotation[] array, @NotNull Class<T> clazz) {
         if (array == null) return null;
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {

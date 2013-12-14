@@ -1,5 +1,7 @@
 package org.dumb.yaml.builder;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
@@ -19,16 +21,19 @@ class ParamInfo {
     /**
      * Type of argument
      */
+    @NotNull
     private Class<?> type;
 
     /**
      * Actual types (if type is collection: List, Map)
      */
+    @NotNull
     private Type[] actualTypes;
 
+    @NotNull
     private Annotation[] annotations;
 
-    public ParamInfo(int pos, Class<?> type, Type[] actualTypes, Annotation[] annotations) {
+    public ParamInfo(int pos, @NotNull Class<?> type, @NotNull Type[] actualTypes, @NotNull Annotation[] annotations) {
         this.pos = pos;
         this.type = type;
         this.actualTypes = actualTypes;
@@ -39,14 +44,17 @@ class ParamInfo {
         return pos;
     }
 
+    @NotNull
     public Class<?> getType() {
         return type;
     }
 
+    @NotNull
     public Type[] getActualTypes() {
         return actualTypes;
     }
 
+    @NotNull
     public Annotation[] getAnnotations() {
         return annotations;
     }

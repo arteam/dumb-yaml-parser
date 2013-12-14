@@ -1,5 +1,8 @@
 package org.dumb.yaml.builder;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,8 +18,13 @@ enum UnsafeAllocator {
 
     INSTANCE;
 
+    // Guarded by unsafeAvailable
+    @NotNull
     private Object theUnsafe;
+
+    @NotNull
     private Method allocateInstance;
+
     private boolean unsafeAvailable;
 
     private UnsafeAllocator() {
@@ -32,7 +40,8 @@ enum UnsafeAllocator {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T create(Class<T> clazz) {
+    @Nullable
+    public <T> T create(@NotNull Class<T> clazz) {
         if (!unsafeAvailable) return null;
         try {
             return (T) allocateInstance.invoke(theUnsafe, clazz);
