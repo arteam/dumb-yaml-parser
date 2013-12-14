@@ -18,9 +18,9 @@ import java.util.regex.Pattern;
  */
 public class YamlParser {
 
-    private static final Pattern PATTERN = Pattern.compile("^(\\s*)(\\S+)\\s*:+\\s*([^#]*).*$");
+    private static final Pattern PATTERN = Pattern.compile("^(\\s*)(\\S+)\\s*:+\\s*(.*)\\s*$");
     private static final Pattern LIST_KEY_VALUE = Pattern.compile("^\\s*([^{]\\S+)\\s*:\\s*(.*)\\s*$");
-    private static final Pattern LIST = Pattern.compile("^(\\s*)-\\s*([^#]*).*$");
+    private static final Pattern LIST = Pattern.compile("^(\\s*)-\\s*(.*)\\s*$");
     private static final Pattern COMMENT = Pattern.compile("\\d*#.*");
 
     /**
@@ -73,7 +73,7 @@ public class YamlParser {
         }
         int amountDelimiters = matcher.group(1).length();
         String key = matcher.group(2);
-        String value = matcher.group(3).trim();
+        String value = deleteComment(matcher.group(3));
         if (amountDelimiters > rootDelimiters) {
             if (!value.isEmpty()) {
                 if (map.containsKey(key)) {
@@ -124,7 +124,7 @@ public class YamlParser {
             return new ParserNewStep(false, pos);
         }
         int amountDelimiters = lineMatcher.group(1).length();
-        String lv = lineMatcher.group(2);
+        String lv = deleteComment(lineMatcher.group(2));
         if (amountDelimiters > rootDelimiters) {
             Matcher matcher = LIST_KEY_VALUE.matcher(lv);
             if (!matcher.find()) {
@@ -171,7 +171,6 @@ public class YamlParser {
      * Parse string value (usually primitive but could be list and map as well)
      */
     private YamlObject parseStringValue(String value) {
-        value = value.trim();
         if (value.startsWith("[")) {
             if (!value.endsWith("]")) {
                 throw new IllegalArgumentException(value + " should have closed bracket");
@@ -199,7 +198,24 @@ public class YamlParser {
             }
             return new YamlMap(childMap);
         } else {
+            if (value.length() >= 2 && (value.charAt(0) == '\'' && value.charAt(value.length() - 1) == '\'')
+                    || (value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"')) {
+                value = value.substring(1, value.length() - 1);
+            }
             return new YamlPrimitive(value);
         }
+    }
+
+    private static String deleteComment(String value) {
+        // If comments are not escaping
+        if (value.length() >= 2 && !(value.charAt(0) == '\'' && value.charAt(value.length() - 1) == '\'')
+                && !(value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"')) {
+            if (value.startsWith("#")) return "";
+            int i = value.indexOf(" #");
+            if (i != -1) {
+                value = value.substring(0, i).trim();
+            }
+        }
+        return value;
     }
 }
