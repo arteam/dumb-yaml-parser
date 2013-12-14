@@ -1,4 +1,3 @@
-import com.google.gson.internal.UnsafeAllocator;
 import org.dumb.yaml.Yaml;
 import org.junit.Assert;
 import org.junit.Test;
