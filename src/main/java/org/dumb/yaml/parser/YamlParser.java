@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class YamlParser {
 
     private static final Pattern PATTERN = Pattern.compile("^(\\s*)(\\S+)\\s*:+\\s*([^#]*).*$");
-    private static final Pattern LIST_KEY_VALUE = Pattern.compile("^\\s*(\\S+)\\s*:\\s*(.*)\\s*$");
+    private static final Pattern LIST_KEY_VALUE = Pattern.compile("^\\s*([^{]\\S+)\\s*:\\s*(.*)\\s*$");
     private static final Pattern LIST = Pattern.compile("^(\\s*)-\\s*([^#]*).*$");
     private static final Pattern COMMENT = Pattern.compile("\\d*#.*");
 
@@ -59,15 +59,15 @@ public class YamlParser {
         String line = lines.get(pos);
         Matcher matcher = PATTERN.matcher(line);
         if (!matcher.find()) {
-            if (line.trim().isEmpty() || COMMENT.matcher(line).find()) {
-                return new ParserNewStep(true, pos + 1);
-            }
             Matcher lineMatcher = LIST.matcher(line);
             if (lineMatcher.find()) {
                 if (lineMatcher.group(1).length() <= rootDelimiters) {
                     return new ParserNewStep(false, pos);
                 }
-                return startParseList(lines, pos, rootDelimiters, list);
+                return startAnalyzeList(lines, pos, rootDelimiters, list);
+            }
+            if (line.trim().isEmpty() || COMMENT.matcher(line).find()) {
+                return new ParserNewStep(true, pos + 1);
             }
             throw new IllegalArgumentException("Bad line: " + line);
         }
@@ -82,20 +82,7 @@ public class YamlParser {
                 map.put(key, parseStringValue(value));
                 return new ParserNewStep(true, pos + 1);
             } else {
-                Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
-                List<YamlObject> childList = new ArrayList<YamlObject>();
-                ParserNewStep newStep;
-                int nextPos = pos + 1;
-                // Iterate while parser not jumped to upper level
-                do {
-                    newStep = analyze(lines, nextPos, amountDelimiters, childMap, childList);
-                    nextPos = newStep.pos;
-                } while (newStep.ifContinue);
-                if (childMap.isEmpty() && childList.isEmpty()) {
-                    throw new IllegalArgumentException("Key " + key + " hasn't got values");
-                }
-                map.put(key, !childMap.isEmpty() ? new YamlMap(childMap) : new YamlList(childList));
-                return new ParserNewStep(true, nextPos);
+                return analyzeMap(lines, pos, amountDelimiters, key, map);
             }
         } else {
             // This means a child level has ended and we jump to an upper level
@@ -103,9 +90,34 @@ public class YamlParser {
         }
     }
 
-    private ParserNewStep parseList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
+    /**
+     * Analyze map with key
+     */
+    private ParserNewStep analyzeMap(List<String> lines, int pos,
+                                     int amountDelimiters, String key, Map<String, YamlObject> rootMap) {
+        Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
+        List<YamlObject> childList = new ArrayList<YamlObject>();
+        ParserNewStep newStep;
+        int nextPos = pos + 1;
+        // Iterate while parser not jumped to upper level
+        do {
+            newStep = analyze(lines, nextPos, amountDelimiters, childMap, childList);
+            nextPos = newStep.pos;
+        } while (newStep.ifContinue);
+        if (childMap.isEmpty() && childList.isEmpty()) {
+            throw new IllegalArgumentException("Key " + key + " hasn't got values");
+        }
+        if (!childMap.isEmpty() && !childList.isEmpty()) {
+            throw new IllegalStateException("Key " + key + " can't have map and list values");
+        }
+        rootMap.put(key, !childMap.isEmpty() ? new YamlMap(childMap) : new YamlList(childList));
+        return new ParserNewStep(true, nextPos);
+    }
+
+    private ParserNewStep analyzeList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
         if (pos > lines.size() - 1)
             return new ParserNewStep(false, pos);
+
         String line = lines.get(pos);
         Matcher lineMatcher = LIST.matcher(line);
         if (!lineMatcher.find()) {
@@ -114,22 +126,19 @@ public class YamlParser {
         int amountDelimiters = lineMatcher.group(1).length();
         String lv = lineMatcher.group(2);
         if (amountDelimiters > rootDelimiters) {
-            // If value is primitive
-            if (!lv.contains(":") || lv.startsWith("{") || lv.startsWith("[")) {
+            Matcher matcher = LIST_KEY_VALUE.matcher(lv);
+            if (!matcher.find()) {
+                // If value is primitive
                 list.add(parseStringValue(lv));
                 return new ParserNewStep(true, pos + 1);
             }
             // Otherwise key value list
-            Matcher matcher = LIST_KEY_VALUE.matcher(lv);
-            if (!matcher.find()) {
-                throw new RuntimeException();
-            }
             String key = matcher.group(1);
             String value = matcher.group(2);
 
-            Map<String, YamlObject> map = new LinkedHashMap<String, YamlObject>();
             ParserNewStep newStep;
             int nextPos = pos + 1;
+            Map<String, YamlObject> map = new LinkedHashMap<String, YamlObject>();
             if (!value.isEmpty()) {
                 // If plain key/value list
                 map.put(key, parseStringValue(value));
@@ -138,49 +147,48 @@ public class YamlParser {
                     nextPos = newStep.pos;
                 } while (newStep.ifContinue);
             } else {
-                // If it's root query
-                Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
-                List<YamlObject> childList = new ArrayList<YamlObject>();
-                do {
-                    newStep = analyze(lines, nextPos, amountDelimiters, childMap, childList);
-                    nextPos = newStep.pos;
-                } while (newStep.ifContinue);
-                if (childMap.isEmpty() && childList.isEmpty()) {
-                    throw new IllegalArgumentException("Key " + key + " hasn't got values");
-                }
-                map.put(key, !childMap.isEmpty() ? new YamlMap(childMap) : new YamlList(childList));
+                // If map key
+                newStep = analyzeMap(lines, pos, amountDelimiters, key, map);
             }
             list.add(new YamlMap(map));
-            return new ParserNewStep(true, nextPos);
+            return newStep;
         } else {
             return new ParserNewStep(false, pos);
         }
     }
 
-    private ParserNewStep startParseList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
+    private ParserNewStep startAnalyzeList(List<String> lines, int pos, int rootDelimiters, List<YamlObject> list) {
         ParserNewStep newStep;
         int nextPos = pos;
         do {
-            newStep = parseList(lines, nextPos, rootDelimiters, list);
+            newStep = analyzeList(lines, nextPos, rootDelimiters, list);
             nextPos = newStep.pos;
         } while (newStep.ifContinue);
         return new ParserNewStep(true, nextPos);
     }
 
-
     /**
      * Parse string value (usually primitive but could be list and map as well)
      */
     private YamlObject parseStringValue(String value) {
-        // TODO Apparently regexp validation should be here
-        if (value.startsWith("[") && value.endsWith("]")) {
+        value = value.trim();
+        if (value.startsWith("[")) {
+            if (!value.endsWith("]")) {
+                throw new IllegalArgumentException(value + " should have closed bracket");
+            }
             String[] split = value.substring(1, value.length() - 1).split(",");
             List<YamlObject> list = new ArrayList<YamlObject>();
             for (String s : split) {
                 list.add(new YamlPrimitive(s.trim()));
             }
             return new YamlList(list);
-        } else if (value.startsWith("{") && value.endsWith("}")) {
+        } else if (value.startsWith("{")) {
+            if (!value.endsWith("}")) {
+                throw new IllegalArgumentException(value + " should have closed bracket");
+            }
+            if (!value.contains(":")) {
+                throw new IllegalArgumentException(value + " should have key and value");
+            }
             String[] split = value.substring(1, value.length() - 1).split(",");
             Map<String, YamlObject> childMap = new HashMap<String, YamlObject>();
             for (String s : split) {

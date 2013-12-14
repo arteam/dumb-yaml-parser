@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
@@ -201,7 +203,7 @@ public class YamlParserTest {
                             add(new YamlPrimitive("here"));
                             add(new YamlPrimitive("and"));
                         }}));
-                        add(new YamlMap(new HashMap<String, YamlObject>(){{
+                        add(new YamlMap(new HashMap<String, YamlObject>() {{
                             put("it", new YamlPrimitive("updates"));
                             put("in", new YamlPrimitive("real-time"));
                         }}));
@@ -210,4 +212,59 @@ public class YamlParserTest {
             }}));
         }})));
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void testListAndMap() {
+        parser.parse(file("/test15.yml"));
+    }
+
+    @Test
+    public void testBrackets() {
+        YamlMap yamlMap = parser.parse(file("/test16.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("key", new YamlList(new ArrayList<YamlObject>() {{
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
+                    put("it", new YamlPrimitive("updates}"));
+                }}));
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
+                    put("it", new YamlList(new ArrayList<YamlObject>() {{
+                        add(new YamlPrimitive("updates"));
+                    }}));
+                }}));
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
+                    put("it", new YamlPrimitive("updates]"));
+                }}));
+                add(new YamlMap(new HashMap<String, YamlObject>() {{
+                    put("it", new YamlMap(new HashMap<String, YamlObject>() {{
+                        put("up", new YamlPrimitive("dates"));
+                    }}));
+                }}));
+            }}));
+        }})));
+    }
+
+    @Test
+    public void testListAfterList() {
+        YamlMap yamlMap = parser.parse(file("/test17.yml"));
+        System.out.println(yamlMap);
+        assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
+            put("key", new YamlList(new ArrayList<YamlObject>() {{
+                Map<String, YamlObject> map = new HashMap<String, YamlObject>();
+                map.put("it", new YamlList(new ArrayList<YamlObject>() {{
+                    add(new YamlPrimitive("1"));
+                    add(new YamlPrimitive("2"));
+                    add(new YamlPrimitive("3"));
+                }}));
+                add(new YamlMap(map));
+                add(new YamlPrimitive("4"));
+                add(new YamlPrimitive("5"));
+            }}));
+        }})));
+    }
+
+    //<YamlMap{map={it=YamlList{list=[YamlPrimitive{value=1}, YamlPrimitive{value=2}, YamlPrimitive{value=3}]}, key=YamlList{list=[YamlMap{map={}}, YamlPrimitive{value=4}, YamlPrimitive{value=5}]}}}>
+    //<YamlMap{map={key=YamlList{list=[YamlMap{map={it=YamlList{list=[YamlPrimitive{value=1}, YamlPrimitive{value=2}, YamlPrimitive{value=3}]}}}, YamlPrimitive{value=4}, YamlPrimitive{value=5}]}}}>
+
+    //
 }

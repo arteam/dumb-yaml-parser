@@ -1,5 +1,11 @@
 key:
- - just: write some
+ # comment 1
+ - just: write some # comment 2
+ # comment 3
+
  - yaml:
-   - [here, and]
-   - {it: updates, in: real-time}
+   # comment 4
+   # - val
+   - [here, and] #comment 5
+   - {it: updates, in: real-time} # comment 6
+# comment 7
