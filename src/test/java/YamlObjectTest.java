@@ -1,3 +1,4 @@
+import com.google.gson.internal.UnsafeAllocator;
 import org.dumb.yaml.Yaml;
 import org.junit.Assert;
 import org.junit.Test;
@@ -91,6 +92,16 @@ public class YamlObjectTest {
     }
 
     @Test
+    public void testUnsafeInstanceOnClass() {
+        DBConfigUnsafe test = parser.parse(file("/test4.yml"), DBConfigUnsafe.class);
+        System.out.println(test);
+        Assert.assertEquals(test, new DBConfigUnsafe(new HashMap<String, DBConfigUnsafe.Database>() {{
+            put("cms", new DBConfigUnsafe.Database("Post gres", "52.15:cms"));
+            put("sms", new DBConfigUnsafe.Database("Post gres", "52.15:sms"));
+        }}));
+    }
+
+    @Test
     public void testPerson() {
         Person test = parser.parse(file("/test10.yml"), Person.class);
         System.out.println(test);
@@ -112,6 +123,14 @@ public class YamlObjectTest {
         System.out.println(test);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         Assert.assertEquals(test, new DateInterval(sdf.parse("2010-11-18 12:30"), sdf.parse("2010-11-20 14:00")));
+    }
+
+    @Test
+    public void dateIntervalUnsafeTest() throws Exception {
+        DateIntervalUnsafe dateInterval = parser.parse(file("/test11.yml"), DateIntervalUnsafe.class);
+        System.out.println(dateInterval);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Assert.assertEquals(dateInterval, new DateIntervalUnsafe(sdf.parse("2010-11-18 12:30"), sdf.parse("2010-11-20 14:00")));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -146,7 +165,7 @@ public class YamlObjectTest {
 
     @Test(expected = IllegalStateException.class)
     public void testParseStringPrimitivesNamesNoConstructor() {
-       parser.parse(file("/test.yml"), StringPrimitivesNames.class);
+        parser.parse(file("/test.yml"), StringPrimitivesNames.class);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -158,4 +177,5 @@ public class YamlObjectTest {
     public void testParseStringPrimitivesIncorrectNames() {
         parser.parse(file("/test.yml"), StringPrimitivesIncorrectNames.class);
     }
+
 }

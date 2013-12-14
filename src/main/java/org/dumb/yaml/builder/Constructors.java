@@ -1,6 +1,14 @@
 package org.dumb.yaml.builder;
 
+import org.dumb.yaml.annotation.Name;
+import org.dumb.yaml.annotation.Names;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
 
 /**
  * Date: 11/23/13
@@ -32,7 +40,7 @@ class Constructors {
         return constructor;
     }
 
-    public <T> T newInstance(Constructor<T> constructor, Object[] args) {
+    public <T> T newInstance(Constructor<T> constructor, Object... args) {
         constructor.setAccessible(true);
         try {
             return constructor.newInstance(args);

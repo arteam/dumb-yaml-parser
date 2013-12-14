@@ -71,6 +71,22 @@ public class AnnotationResolver {
         return (classNames != null ? classNames : constructorNames).value();
     }
 
+    public boolean hasNameAnnotations(Constructor c) {
+        if (hasAnnotation(c.getDeclaredAnnotations(), Names.class) ||
+                hasAnnotation(c.getDeclaringClass().getDeclaredAnnotations(), Names.class)) {
+            return true;
+        }
+        Annotation[][] parameterAnnotations = c.getParameterAnnotations();
+        for (Annotation[] annotations : parameterAnnotations) {
+            for (Annotation a : annotations) {
+                if (a.annotationType().equals(Name.class)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T getAnnotation(Annotation[] array, Class<T> clazz) {
         if (array == null) return null;
@@ -80,5 +96,15 @@ public class AnnotationResolver {
             }
         }
         return null;
+    }
+
+    public static boolean hasAnnotation(Annotation[] array, Class<? extends Annotation> clazz) {
+        if (array == null) return false;
+        for (Annotation a : array) {
+            if (a.annotationType().equals(clazz)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
