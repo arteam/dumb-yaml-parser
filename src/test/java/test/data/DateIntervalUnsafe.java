@@ -11,13 +11,17 @@ import java.util.Date;
  *
  * @author Artem Prigoda
  */
-public class DateInterval {
+public class DateIntervalUnsafe {
 
+    @Name("start_date")
+    @DateConverter("yyyy-MM-dd HH:mm")
     private final Date startDate;
+
+    @Name("end_date")
+    @DateConverter("yyyy-MM-dd HH:mm")
     private final Date endDate;
 
-    public DateInterval(@Name("start_date") @DateConverter("yyyy-MM-dd HH:mm") Date startDate,
-                        @Name("end_date") @DateConverter("yyyy-MM-dd HH:mm") Date endDate) {
+    public DateIntervalUnsafe(Date startDate, Date endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
     }
@@ -27,7 +31,7 @@ public class DateInterval {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        DateInterval that = (DateInterval) o;
+        DateIntervalUnsafe that = (DateIntervalUnsafe) o;
 
         if (endDate != null ? !endDate.equals(that.endDate) : that.endDate != null) return false;
         if (startDate != null ? !startDate.equals(that.startDate) : that.startDate != null) return false;

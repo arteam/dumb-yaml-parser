@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
  *
  * @author Artem Prigoda
  */
- class ParamInfo {
+class ParamInfo {
 
     /**
      * Argument position in constructor

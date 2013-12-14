@@ -12,7 +12,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,6 +29,7 @@ public class ObjectBuilder {
     private AnnotationResolver resolver = new AnnotationResolver();
     private Constructors constructors = new Constructors();
     private Types types = new Types();
+    private UnsafeAllocator unsafeAllocator = UnsafeAllocator.INSTANCE;
 
     /**
      * Build an object representation based on YAML map
@@ -42,19 +42,27 @@ public class ObjectBuilder {
                 throw new IllegalStateException("Annotation @Names can be present only on a class " +
                         "with a constructor with parameters");
             }
-            return buildByFields(yamlMap, constructor);
+            return buildByFields(yamlMap, constructors.newInstance(constructor));
         } else {
-            return buildByConstructor(yamlMap, constructor);
+            if (resolver.hasNameAnnotations(constructor)) {
+                return buildByConstructor(yamlMap, constructor);
+            } else {
+                T instance = unsafeAllocator.create(clazz);
+                if (instance == null) {
+                    throw new IllegalStateException(clazz + " doesn't have default constructor or" +
+                            " named constructor with params and sun.misc.Unsafe is not available");
+                }
+                return buildByFields(yamlMap, instance);
+            }
         }
     }
 
     /**
      * Build an object by setting private fields
      */
-    private <T> T buildByFields(YamlMap yamlMap, Constructor<T> constructor) {
+    private <T> T buildByFields(YamlMap yamlMap, T instance) {
         Map<String, YamlObject> map = yamlMap.getMap();
         try {
-            T instance = constructor.newInstance();
             Field[] declaredFields = instance.getClass().getDeclaredFields();
             for (Field field : declaredFields) {
                 Name annotationName = field.getAnnotation(Name.class);
@@ -69,7 +77,7 @@ public class ObjectBuilder {
             }
             return instance;
         } catch (Exception e) {
-            throw new IllegalStateException("Unable inject fields to " + constructor.getDeclaringClass(), e);
+            throw new IllegalStateException("Unable inject fields to " + instance.getClass(), e);
         }
     }
 
