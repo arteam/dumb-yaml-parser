@@ -1,5 +1,8 @@
 package org.dumb.yaml;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +17,8 @@ import java.util.List;
  */
 class StreamAdapter {
 
-    public List<String> convert(File file) {
+    @NotNull
+    public List<String> convert(@NotNull File file) {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
@@ -32,12 +36,14 @@ class StreamAdapter {
         }
     }
 
-    public List<String> convert(InputStream stream) {
+    @NotNull
+    public List<String> convert(@NotNull InputStream stream) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         return convert(reader);
     }
 
-    public List<String> convert(BufferedReader reader) {
+    @NotNull
+    public List<String> convert(@NotNull BufferedReader reader) {
         List<String> lines = new ArrayList<String>();
         String line;
         try {
@@ -50,7 +56,9 @@ class StreamAdapter {
         return lines;
     }
 
-    public List<String> convert(String yamlText) {
+    @NotNull
+    public List<String> convert(@Nullable String yamlText) {
+        if (yamlText == null) return new ArrayList<String>();
         return Arrays.asList(yamlText.split("\n"));
     }
 }

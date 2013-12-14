@@ -1,5 +1,7 @@
 package org.dumb.yaml.builder;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
@@ -14,7 +16,8 @@ import java.util.*;
  */
 class Types {
 
-    public Type[] getActualTypes(Type genericType) {
+    @NotNull
+    public Type[] getActualTypes(@NotNull Type genericType) {
         return genericType instanceof ParameterizedType ?
                 ((ParameterizedType) genericType).getActualTypeArguments() :
                 new Type[]{genericType};
@@ -25,7 +28,8 @@ class Types {
      * Create new collection based on type
      */
     @SuppressWarnings("unchecked")
-    public Collection<Object> newCollection(Class<?> type) {
+    @NotNull
+    public Collection<Object> newCollection(@NotNull Class<?> type) {
         if (!Collection.class.isAssignableFrom(type)) {
             throw new IllegalArgumentException("Unable assign collection to " + type);
         }
@@ -44,7 +48,8 @@ class Types {
         throw new IllegalStateException("Unknown type " + type);
     }
 
-    public Class toClass(Type type) {
+    @NotNull
+    public Class toClass(@NotNull Type type) {
         if (type instanceof Class) return (Class) type;
         if (type instanceof WildcardType) {
             Type[] upperBounds = ((WildcardType) type).getUpperBounds();

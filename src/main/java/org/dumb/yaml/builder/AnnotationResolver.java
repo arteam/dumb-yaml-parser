@@ -2,6 +2,8 @@ package org.dumb.yaml.builder;
 
 import org.dumb.yaml.annotation.Name;
 import org.dumb.yaml.annotation.Names;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -25,7 +27,8 @@ class AnnotationResolver {
      * Parse annotations from constructor args and
      * build map with info about arguments position and their actual types
      */
-    public Map<String, ParamInfo> lookupParameterNames(Constructor<?> constructor) {
+    @NotNull
+    public Map<String, ParamInfo> lookupParameterNames(@NotNull Constructor<?> constructor) {
         Class<?>[] types = constructor.getParameterTypes();
         Type[] genericTypes = constructor.getGenericParameterTypes();
         Annotation[][] anns = constructor.getParameterAnnotations();
@@ -59,7 +62,8 @@ class AnnotationResolver {
     /**
      * Parse parameters from @Names annotation on class or constructor
      */
-    private String[] getNamesParams(Constructor<?> constructor) {
+    @Nullable
+    private String[] getNamesParams(@NotNull Constructor<?> constructor) {
         Names constructorNames = getAnnotation(constructor.getDeclaredAnnotations(), Names.class);
         Names classNames = getAnnotation(constructor.getDeclaringClass().getDeclaredAnnotations(), Names.class);
         if (constructorNames != null && classNames != null) {
@@ -71,7 +75,7 @@ class AnnotationResolver {
         return (classNames != null ? classNames : constructorNames).value();
     }
 
-    public boolean hasNameAnnotations(Constructor c) {
+    public boolean hasNameAnnotations(@NotNull Constructor c) {
         if (hasAnnotation(c.getDeclaredAnnotations(), Names.class) ||
                 hasAnnotation(c.getDeclaringClass().getDeclaredAnnotations(), Names.class)) {
             return true;
@@ -88,7 +92,8 @@ class AnnotationResolver {
     }
 
     @SuppressWarnings("unchecked")
-    static <T extends Annotation> T getAnnotation(Annotation[] array, Class<T> clazz) {
+    @Nullable
+    static <T extends Annotation> T getAnnotation(@Nullable Annotation[] array, @NotNull Class<T> clazz) {
         if (array == null) return null;
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {
@@ -98,7 +103,7 @@ class AnnotationResolver {
         return null;
     }
 
-    static boolean hasAnnotation(Annotation[] array, Class<? extends Annotation> clazz) {
+    static boolean hasAnnotation(@Nullable Annotation[] array, @NotNull Class<? extends Annotation> clazz) {
         if (array == null) return false;
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {

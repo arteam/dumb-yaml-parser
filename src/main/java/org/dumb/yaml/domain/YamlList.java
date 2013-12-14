@@ -1,5 +1,7 @@
 package org.dumb.yaml.domain;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 /**
@@ -10,12 +12,14 @@ import java.util.List;
  */
 public class YamlList implements YamlObject {
 
+    @NotNull
     private List<YamlObject> list;
 
-    public YamlList(List<YamlObject> list) {
+    public YamlList(@NotNull List<YamlObject> list) {
         this.list = list;
     }
 
+    @NotNull
     public List<YamlObject> getList() {
         return list;
     }
@@ -24,14 +28,14 @@ public class YamlList implements YamlObject {
     public boolean equals(Object o) {
         if (o instanceof YamlList) {
             YamlList that = (YamlList) o;
-            return list == that.list || (list != null && list.equals(that.list));
+            return list.equals(that.list);
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return list != null ? list.hashCode() : 0;
+        return list.hashCode();
     }
 
     @Override
