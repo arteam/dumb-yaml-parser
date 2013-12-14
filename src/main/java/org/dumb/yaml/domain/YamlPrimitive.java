@@ -2,14 +2,12 @@ package org.dumb.yaml.domain;
 
 import org.dumb.yaml.annotation.DateConverter;
 import org.dumb.yaml.annotation.EnumConverter;
-import org.dumb.yaml.builder.AnnotationResolver;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.dumb.yaml.util.Objects;
 
 import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
 
@@ -112,14 +110,14 @@ public class YamlPrimitive implements YamlObject {
     public boolean equals(Object o) {
         if (o instanceof YamlPrimitive) {
             YamlPrimitive that = (YamlPrimitive) o;
-            return Objects.equals(value, that.value);
+            return value == that.value || (value != null && value.equals(that.value));
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(value);
+        return value != null ? value.hashCode() : 0;
     }
 
     @Override

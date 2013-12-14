@@ -94,7 +94,7 @@ public class YamlObjectTest {
     public void testPerson() {
         Person test = parser.parse(file("/test10.yml"), Person.class);
         System.out.println(test);
-        Assert.assertEquals(test, new Person("\"foo\"", "foo@mail.com", 12,
+        Assert.assertEquals(test, new Person("foo", "foo@mail.com", 12,
                 Arrays.asList(Person.JobType.VOD, Person.JobType.TV), Person.Network.OTT));
     }
 
@@ -102,7 +102,7 @@ public class YamlObjectTest {
     public void testPersonNamesOnConstructor() {
         PersonNames test = parser.parse(file("/test10.yml"), PersonNames.class);
         System.out.println(test);
-        Assert.assertEquals(test, new PersonNames("\"foo\"", "foo@mail.com", 12,
+        Assert.assertEquals(test, new PersonNames("foo", "foo@mail.com", 12,
                 Arrays.asList(PersonNames.JobType.VOD, PersonNames.JobType.TV), PersonNames.Network.OTT));
     }
 

@@ -3,7 +3,7 @@ package test.data;
 import org.dumb.yaml.annotation.Name;
 
 import java.util.Map;
-import org.dumb.yaml.util.Objects;
+import util.Objects;
 
 /**
  * Date: 11/22/13

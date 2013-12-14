@@ -1,4 +1,4 @@
-package org.dumb.yaml.util;
+package util;
 
 import java.util.Arrays;
 
