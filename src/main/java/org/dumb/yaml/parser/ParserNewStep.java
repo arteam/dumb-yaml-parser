@@ -11,7 +11,7 @@ class ParserNewStep {
     boolean ifContinue;
     int pos;
 
-    public ParserNewStep(boolean ifContinue, int pos) {
+    ParserNewStep(boolean ifContinue, int pos) {
         this.ifContinue = ifContinue;
         this.pos = pos;
     }

@@ -16,6 +16,9 @@ import java.util.*;
  */
 class Types {
 
+    /**
+     * Get actual type for maps/lists. Otherwise return current type
+     */
     @NotNull
     public Type[] getActualTypes(@NotNull Type genericType) {
         return genericType instanceof ParameterizedType ?
@@ -23,13 +26,12 @@ class Types {
                 new Type[]{genericType};
     }
 
-
     /**
      * Create new collection based on type
      */
     @SuppressWarnings("unchecked")
     @NotNull
-    public Collection<Object> newCollection(@NotNull Class<?> type) {
+    Collection<Object> newCollection(@NotNull Class<?> type) {
         if (!Collection.class.isAssignableFrom(type)) {
             throw new IllegalArgumentException("Unable assign collection to " + type);
         }
@@ -49,7 +51,7 @@ class Types {
     }
 
     @NotNull
-    public Class toClass(@NotNull Type type) {
+    Class toClass(@NotNull Type type) {
         if (type instanceof Class) return (Class) type;
         if (type instanceof WildcardType) {
             Type[] upperBounds = ((WildcardType) type).getUpperBounds();
