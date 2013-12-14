@@ -17,7 +17,7 @@ import java.util.Map;
  *
  * @author Artem Prigoda
  */
-public class AnnotationResolver {
+class AnnotationResolver {
 
     private Types typesUtil = new Types();
 
@@ -88,7 +88,7 @@ public class AnnotationResolver {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T getAnnotation(Annotation[] array, Class<T> clazz) {
+    static <T extends Annotation> T getAnnotation(Annotation[] array, Class<T> clazz) {
         if (array == null) return null;
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {
@@ -98,7 +98,7 @@ public class AnnotationResolver {
         return null;
     }
 
-    public static boolean hasAnnotation(Annotation[] array, Class<? extends Annotation> clazz) {
+    static boolean hasAnnotation(Annotation[] array, Class<? extends Annotation> clazz) {
         if (array == null) return false;
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {

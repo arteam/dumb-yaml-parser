@@ -8,9 +8,6 @@ import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
-
 /**
  * Date: 11/19/13
  * Time: 9:51 PM
@@ -123,5 +120,16 @@ public class YamlPrimitive implements YamlObject {
     @Override
     public String toString() {
         return "YamlPrimitive{value=" + value + "}";
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Annotation> T getAnnotation(Annotation[] array, Class<T> clazz) {
+        if (array == null) return null;
+        for (Annotation a : array) {
+            if (a.annotationType().equals(clazz)) {
+                return (T) a;
+            }
+        }
+        return null;
     }
 }
