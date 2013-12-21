@@ -29,7 +29,8 @@ public class YamlParser {
      * Parse YAML string to an object tree representation
      */
     @NotNull
-    public YamlMap parse(@NotNull List<String> lines) {
+    @SuppressWarnings("unchecked")
+    public <T extends YamlObject> T parse(@NotNull List<String> lines, Class<T> clazz) {
         if (lines.size() == 0)
             throw new IllegalArgumentException("No data to parse");
 
@@ -38,11 +39,17 @@ public class YamlParser {
         int pos = 0;
         while (pos < lines.size()) {
             ParserNewStep rv = analyze(lines, pos, -1, map, list);
-            if (!rv.ifContinue) throw new IllegalStateException("Delimiter problems");
+            if (!rv.ifContinue) throw new IllegalStateException("Root element can't have parents");
             pos = rv.pos;
         }
 
-        return new YamlMap(map);
+        if (YamlMap.class.isAssignableFrom(clazz)) {
+            return (T) new YamlMap(map);
+        } else if (YamlList.class.isAssignableFrom(clazz)) {
+            return (T) new YamlList(list);
+        } else {
+            throw new IllegalArgumentException("Primitives are not parsing at root level");
+        }
     }
 
     /**

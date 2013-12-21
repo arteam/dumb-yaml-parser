@@ -213,6 +213,22 @@ public class YamlParserTest {
         }})));
     }
 
+    @Test
+    public void testRootList(){
+        YamlList yamlList = parser.parseList(file("/test19.yml"));
+        System.out.println(yamlList);
+        assertThat(yamlList, equalTo(new YamlList(new ArrayList<YamlObject>(){{
+            add(new YamlMap(new HashMap<String, YamlObject>(){{
+                put("id", new YamlPrimitive("mwjb1"));
+                put("url", new YamlPrimitive("mwjb1.tv.megafon"));
+            }}));
+            add(new YamlMap(new HashMap<String, YamlObject>(){{
+                put("id", new YamlPrimitive("mwjb2"));
+                put("url", new YamlPrimitive("mwjb2.tv.megafon"));
+            }}));
+        }})));
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testListAndMap() {
         parser.parse(file("/test15.yml"));
