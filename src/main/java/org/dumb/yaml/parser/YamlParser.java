@@ -34,7 +34,7 @@ public class YamlParser {
         if (lines.size() == 0)
             throw new IllegalArgumentException("No data to parse");
 
-        Map<String, YamlObject> map = new HashMap<String, YamlObject>();
+        Map<String, YamlObject> map = new LinkedHashMap<String, YamlObject>();
         List<YamlObject> list = new ArrayList<YamlObject>();
         int pos = 0;
         while (pos < lines.size()) {
@@ -207,7 +207,7 @@ public class YamlParser {
                 throw new IllegalArgumentException(value + " should have key and value");
             }
             String[] split = value.substring(1, value.length() - 1).split(",");
-            Map<String, YamlObject> childMap = new HashMap<String, YamlObject>();
+            Map<String, YamlObject> childMap = new LinkedHashMap<String, YamlObject>();
             for (String s : split) {
                 String[] keyValue = s.split(":");
                 String childKey = keyValue[0].trim();

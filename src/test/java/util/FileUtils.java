@@ -1,9 +1,6 @@
 package util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Date: 11/23/13
@@ -13,7 +10,7 @@ import java.io.IOException;
  */
 public class FileUtils {
 
-    public static String file(String fileName) {
+    public static String contents(String fileName) {
         String file = FileUtils.class.getResource(fileName).getFile();
         BufferedReader reader = null;
         try {
@@ -34,6 +31,26 @@ public class FileUtils {
             }
         }
 
+    }
+
+    public static File file(String fileName) {
+        return new File(FileUtils.class.getResource(fileName).getFile());
+    }
+
+    public static InputStream inputStream(String fileName) {
+        try {
+            return new FileInputStream(FileUtils.class.getResource(fileName).getFile());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static BufferedReader reader(String fileName) {
+        try {
+            return new BufferedReader(new FileReader(FileUtils.class.getResource(fileName).getFile()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String relativeFileName(String fileName) {

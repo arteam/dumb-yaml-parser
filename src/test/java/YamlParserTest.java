@@ -10,13 +10,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
-import static util.FileUtils.file;
+import static util.FileUtils.contents;
 import static util.FileUtils.relativeFileName;
 
 /**
@@ -41,7 +40,7 @@ public class YamlParserTest {
 
     @Test
     public void testParseYamlWithInnerMap() {
-        YamlMap yamlMap = parser.parse(file("/test2.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test2.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("key", new YamlMap(new HashMap<String, YamlObject>() {{
@@ -54,7 +53,7 @@ public class YamlParserTest {
 
     @Test
     public void testReturnToUpperLevel() {
-        YamlMap yamlMap = parser.parse(file("/test3.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test3.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("ter", new YamlMap(new HashMap<String, YamlObject>() {{
@@ -103,22 +102,22 @@ public class YamlParserTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidYaml() {
-        parser.parse(file("/invalid.yml"));
+        parser.parse(contents("/invalid.yml"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidYaml2() {
-        parser.parse(file("/invalid2.yml"));
+        parser.parse(contents("/invalid2.yml"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidYaml3() {
-        parser.parse(file("/invalid3.yml"));
+        parser.parse(contents("/invalid3.yml"));
     }
 
     @Test
     public void testList() {
-        YamlMap yamlMap = parser.parse(file("/test6.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test6.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("ids", new YamlList(new ArrayList<YamlObject>() {{
@@ -131,7 +130,7 @@ public class YamlParserTest {
 
     @Test
     public void testInnerMap() {
-        YamlMap yamlMap = parser.parse(file("/test7.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test7.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("args", new YamlMap(new HashMap<String, YamlObject>() {{
@@ -143,7 +142,7 @@ public class YamlParserTest {
 
     @Test
     public void testComments() {
-        YamlMap yamlMap = parser.parse(file("/test8.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test8.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("key", new YamlMap(new HashMap<String, YamlObject>() {{
@@ -159,7 +158,7 @@ public class YamlParserTest {
 
     @Test
     public void testPlainList() {
-        YamlMap yamlMap = parser.parse(file("/test12.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test12.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("colors", new YamlList(new ArrayList<YamlObject>() {{
@@ -172,7 +171,7 @@ public class YamlParserTest {
 
     @Test
     public void testComplexList() {
-        YamlMap yamlMap = parser.parse(file("/test13.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test13.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("servers", new YamlList(new ArrayList<YamlObject>() {{
@@ -190,7 +189,7 @@ public class YamlParserTest {
 
     @Test
     public void testSuperComplexList() {
-        YamlMap yamlMap = parser.parse(file("/test14.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test14.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("key", new YamlList(new ArrayList<YamlObject>() {{
@@ -215,7 +214,7 @@ public class YamlParserTest {
 
     @Test
     public void testRootList(){
-        YamlList yamlList = parser.parseList(file("/test19.yml"));
+        YamlList yamlList = parser.parseList(contents("/test19.yml"));
         System.out.println(yamlList);
         assertThat(yamlList, equalTo(new YamlList(new ArrayList<YamlObject>(){{
             add(new YamlMap(new HashMap<String, YamlObject>(){{
@@ -229,14 +228,25 @@ public class YamlParserTest {
         }})));
     }
 
+    @Test
+    public void testRootPrimitiveList(){
+        YamlList yamlList = parser.parseList(contents("/test20.yml"));
+        System.out.println(yamlList);
+        assertThat(yamlList, equalTo(new YamlList(new ArrayList<YamlObject>(){{
+            add(new YamlPrimitive("red"));
+            add(new YamlPrimitive("orange"));
+            add(new YamlPrimitive("black"));
+        }})));
+    }
+
     @Test(expected = IllegalStateException.class)
     public void testListAndMap() {
-        parser.parse(file("/test15.yml"));
+        parser.parse(contents("/test15.yml"));
     }
 
     @Test
     public void testBrackets() {
-        YamlMap yamlMap = parser.parse(file("/test16.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test16.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("key", new YamlList(new ArrayList<YamlObject>() {{
@@ -262,7 +272,7 @@ public class YamlParserTest {
 
     @Test
     public void testListAfterList() {
-        YamlMap yamlMap = parser.parse(file("/test17.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test17.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>() {{
             put("key", new YamlList(new ArrayList<YamlObject>() {{
@@ -281,7 +291,7 @@ public class YamlParserTest {
 
     @Test
     public void testStringEscaping() {
-        YamlMap yamlMap = parser.parse(file("/test18.yml"));
+        YamlMap yamlMap = parser.parse(contents("/test18.yml"));
         System.out.println(yamlMap);
         assertThat(yamlMap, equalTo(new YamlMap(new HashMap<String, YamlObject>(){{
             put("key", new YamlPrimitive(" val 1 "));

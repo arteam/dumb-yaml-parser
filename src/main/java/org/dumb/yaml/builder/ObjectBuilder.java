@@ -33,10 +33,16 @@ public class ObjectBuilder {
     private Types types = new Types();
     private UnsafeAllocator unsafeAllocator = UnsafeAllocator.INSTANCE;
 
-    @SuppressWarnings("unhc")
-    public <T> List<T> build(@NotNull YamlList yamlList, @NotNull Class<T> clazz) {
+    @SuppressWarnings("unchecked")
+    public <T> List<T> buildList(@NotNull YamlList yamlList, @NotNull Class<T> clazz) {
         Type[] actualTypes = new Type[]{clazz};
         return (List<T>) typedList(yamlList, List.class, actualTypes, new Annotation[]{});
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> Map<String, T> buildMap(@NotNull YamlMap yamlMap, @NotNull Class<T> clazz) {
+        Type[] actualTypes = new Type[]{String.class, clazz};
+        return (Map<String, T>) typedMap(yamlMap, Map.class, actualTypes, new Annotation[]{});
     }
 
     /**

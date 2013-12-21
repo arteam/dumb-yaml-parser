@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Date: 11/23/13
@@ -27,47 +28,47 @@ public class Yaml {
     private StreamAdapter streamAdapter = new StreamAdapter();
 
     @NotNull
-    public YamlMap parse(@Nullable String yamlText) {
-        return yamlParser.parse(streamAdapter.convert(yamlText), YamlMap.class);
+    public YamlMap parse(@Nullable String source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlMap.class);
     }
 
     @NotNull
-    public YamlMap parse(@NotNull File file) {
-        return yamlParser.parse(streamAdapter.convert(file), YamlMap.class);
+    public YamlMap parse(@NotNull File source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlMap.class);
     }
 
     @NotNull
-    public YamlMap parse(@NotNull InputStream inputStream) {
-        return yamlParser.parse(streamAdapter.convert(inputStream), YamlMap.class);
+    public YamlMap parse(@NotNull InputStream source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlMap.class);
     }
 
     @NotNull
-    public YamlMap parse(@NotNull BufferedReader reader) {
-        return yamlParser.parse(streamAdapter.convert(reader), YamlMap.class);
+    public YamlMap parse(@NotNull BufferedReader source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlMap.class);
     }
 
     @NotNull
-    public YamlList parseList(@Nullable String yamlText) {
-        return yamlParser.parse(streamAdapter.convert(yamlText), YamlList.class);
+    public YamlList parseList(@NotNull String source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlList.class);
     }
 
     @NotNull
-    public YamlList parseList(@NotNull File file) {
-        return yamlParser.parse(streamAdapter.convert(file), YamlList.class);
+    public YamlList parseList(@NotNull File source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlList.class);
     }
 
     @NotNull
-    public YamlList parseList(@NotNull InputStream inputStream) {
-        return yamlParser.parse(streamAdapter.convert(inputStream), YamlList.class);
+    public YamlList parseList(@NotNull InputStream source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlList.class);
     }
 
     @NotNull
-    public YamlList parseList(@NotNull BufferedReader reader) {
-        return yamlParser.parse(streamAdapter.convert(reader), YamlList.class);
+    public YamlList parseList(@NotNull BufferedReader source) {
+        return yamlParser.parse(streamAdapter.convert(source), YamlList.class);
     }
 
     @NotNull
-    public <T> T parse(@Nullable String source, @NotNull Class<T> clazz) {
+    public <T> T parse(@NotNull String source, @NotNull Class<T> clazz) {
         return objectBuilder.build(parse(source), clazz);
     }
 
@@ -87,23 +88,44 @@ public class Yaml {
     }
 
     @NotNull
-    public <T> List<T> parseList(@Nullable String source, @NotNull Class<T> clazz) {
-        return objectBuilder.build(parseList(source), clazz);
+    public <T> Map<String, T> parseMap(@NotNull String source, @NotNull Class<T> clazz) {
+        return objectBuilder.buildMap(parse(source), clazz);
+    }
+
+    @NotNull
+    public <T> Map<String, T> parseMap(@NotNull File source, @NotNull Class<T> clazz) {
+        return objectBuilder.buildMap(parse(source), clazz);
+    }
+
+    @NotNull
+    public <T> Map<String, T> parseMap(@NotNull InputStream source, @NotNull Class<T> clazz) {
+        return objectBuilder.buildMap(parse(source), clazz);
+    }
+
+    @NotNull
+    public <T> Map<String, T> parseMap(@NotNull BufferedReader source, @NotNull Class<T> clazz) {
+        return objectBuilder.buildMap(parse(source), clazz);
+    }
+
+    @NotNull
+    public <T> List<T> parseList(@NotNull String source, @NotNull Class<T> clazz) {
+        return objectBuilder.buildList(parseList(source), clazz);
     }
 
     @NotNull
     public <T> List<T> parseList(@NotNull File source, @NotNull Class<T> clazz) {
-        return objectBuilder.build(parseList(source), clazz);
+        return objectBuilder.buildList(parseList(source), clazz);
     }
 
     @NotNull
     public <T> List<T> parseList(@NotNull InputStream source, @NotNull Class<T> clazz) {
-        return objectBuilder.build(parseList(source), clazz);
+        return objectBuilder.buildList(parseList(source), clazz);
     }
 
     @NotNull
     public <T> List<T> parseList(@NotNull BufferedReader source, @NotNull Class<T> clazz) {
-        return objectBuilder.build(parseList(source), clazz);
+        return objectBuilder.buildList(parseList(source), clazz);
     }
+
 
 }
