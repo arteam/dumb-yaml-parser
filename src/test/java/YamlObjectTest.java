@@ -4,8 +4,7 @@ import org.junit.Test;
 import test.data.*;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static util.FileUtils.file;
@@ -114,6 +113,12 @@ public class YamlObjectTest {
         System.out.println(test);
         Assert.assertEquals(test, new PersonNames("foo", "foo@mail.com", 12,
                 Arrays.asList(PersonNames.JobType.VOD, PersonNames.JobType.TV), PersonNames.Network.OTT));
+    }
+
+    @Test
+    public void testParseList(){
+        List<Server> servers = parser.parseList(file("/test19.yml"), Server.class);
+        System.out.println(servers);
     }
 
     @Test

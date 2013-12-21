@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
@@ -31,6 +32,12 @@ public class ObjectBuilder {
     private Constructors constructors = new Constructors();
     private Types types = new Types();
     private UnsafeAllocator unsafeAllocator = UnsafeAllocator.INSTANCE;
+
+    @SuppressWarnings("unhc")
+    public <T> List<T> build(@NotNull YamlList yamlList, @NotNull Class<T> clazz) {
+        Type[] actualTypes = new Type[]{clazz};
+        return (List<T>) typedList(yamlList, List.class, actualTypes, new Annotation[]{});
+    }
 
     /**
      * Build an object representation based on YAML map
