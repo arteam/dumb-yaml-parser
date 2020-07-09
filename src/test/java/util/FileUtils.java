@@ -1,6 +1,7 @@
 package util;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Date: 11/23/13
@@ -11,24 +12,21 @@ import java.io.*;
 public class FileUtils {
 
     public static String contents(String fileName) {
-        String file = FileUtils.class.getResource(fileName).getFile();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            int size = (int) new File(relativeFileName(fileName)).length();
-            char[] buf = new char[size];
-            reader.read(buf);
-            return new String(buf);
+        try (InputStream is = FileUtils.class.getResource(fileName).openStream();
+             InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+             BufferedReader reader = new BufferedReader(isr)) {
+            char[] buf = new char[4096];
+            StringBuilder stringBuilder = new StringBuilder();
+            while (true) {
+                int read = reader.read(buf);
+                if (read == -1) {
+                    break;
+                }
+                stringBuilder.append(buf, 0, read);
+            }
+            return stringBuilder.toString();
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
     }
@@ -39,8 +37,8 @@ public class FileUtils {
 
     public static InputStream inputStream(String fileName) {
         try {
-            return new FileInputStream(FileUtils.class.getResource(fileName).getFile());
-        } catch (FileNotFoundException e) {
+            return FileUtils.class.getResource(fileName).openStream();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
