@@ -13,7 +13,7 @@ import java.util.List;
 public class YamlList implements YamlObject {
 
     @NotNull
-    private List<YamlObject> list;
+    private final List<YamlObject> list;
 
     public YamlList(@NotNull List<YamlObject> list) {
         this.list = list;

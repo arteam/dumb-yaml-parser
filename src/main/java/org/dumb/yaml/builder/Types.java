@@ -52,7 +52,9 @@ class Types {
 
     @NotNull
     Class toClass(@NotNull Type type) {
-        if (type instanceof Class) return (Class) type;
+        if (type instanceof Class) {
+            return (Class) type;
+        }
         if (type instanceof WildcardType) {
             Type[] upperBounds = ((WildcardType) type).getUpperBounds();
             return (Class) upperBounds[0];

@@ -4,9 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Date: 11/23/13
@@ -19,46 +21,35 @@ class StreamAdapter {
 
     @NotNull
     List<String> convert(@NotNull File file) {
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+        try (FileInputStream is = new FileInputStream(file);
+             InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
+             BufferedReader reader = new BufferedReader(isr)) {
             return convert(reader);
         } catch (Exception e) {
             throw new IllegalArgumentException("Unable read yaml file: " + file, e);
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    throw new IllegalArgumentException("Unable read yaml file: " + file, e);
-                }
-            }
         }
     }
 
     @NotNull
     List<String> convert(@NotNull InputStream stream) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-        return convert(reader);
+        try (InputStreamReader isr = new InputStreamReader(stream);
+             BufferedReader reader = new BufferedReader(isr)) {
+            return convert(reader);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to process I/O stream", e);
+        }
     }
 
     @NotNull
     List<String> convert(@NotNull BufferedReader reader) {
-        List<String> lines = new ArrayList<String>();
-        String line;
-        try {
-            while ((line = reader.readLine()) != null) {
-                lines.add(line);
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Unable read yaml file", e);
-        }
-        return lines;
+        return reader.lines().collect(Collectors.toList());
     }
 
     @NotNull
     List<String> convert(@Nullable String yamlText) {
-        if (yamlText == null) return new ArrayList<String>();
+        if (yamlText == null) {
+            return new ArrayList<>();
+        }
         return Arrays.asList(yamlText.split("\n"));
     }
 }

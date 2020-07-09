@@ -21,7 +21,7 @@ import java.util.Map;
  */
 class AnnotationResolver {
 
-    private Types typesUtil = new Types();
+    private final Types typesUtil = new Types();
 
     /**
      * Parse annotations from constructor args and
@@ -34,7 +34,9 @@ class AnnotationResolver {
         Annotation[][] anns = constructor.getParameterAnnotations();
         String[] namesParams = getNamesParams(constructor);
 
-        if (types.length == 0) return Collections.emptyMap();
+        if (types.length == 0) {
+            return Collections.emptyMap();
+        }
 
         Map<String, ParamInfo> paramTypes = new LinkedHashMap<String, ParamInfo>();
         for (int i = 0; i < types.length; i++) {
@@ -97,7 +99,9 @@ class AnnotationResolver {
     @SuppressWarnings("unchecked")
     @Nullable
     static <T extends Annotation> T getAnnotation(@Nullable Annotation[] array, @NotNull Class<T> clazz) {
-        if (array == null) return null;
+        if (array == null) {
+            return null;
+        }
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {
                 return (T) a;
@@ -107,7 +111,9 @@ class AnnotationResolver {
     }
 
     static boolean hasAnnotation(@Nullable Annotation[] array, @NotNull Class<? extends Annotation> clazz) {
-        if (array == null) return false;
+        if (array == null) {
+            return false;
+        }
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {
                 return true;

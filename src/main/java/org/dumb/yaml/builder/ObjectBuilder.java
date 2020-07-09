@@ -28,10 +28,10 @@ import static org.dumb.yaml.builder.AnnotationResolver.getAnnotation;
  */
 public class ObjectBuilder {
 
-    private AnnotationResolver resolver = new AnnotationResolver();
-    private Constructors constructors = new Constructors();
-    private Types types = new Types();
-    private UnsafeAllocator unsafeAllocator = UnsafeAllocator.INSTANCE;
+    private final AnnotationResolver resolver = new AnnotationResolver();
+    private final Constructors constructors = new Constructors();
+    private final Types types = new Types();
+    private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.INSTANCE;
 
     @SuppressWarnings("unchecked")
     public <T> List<T> buildList(@NotNull YamlList yamlList, @NotNull Class<T> clazz) {
