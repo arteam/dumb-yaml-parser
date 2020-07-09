@@ -31,7 +31,6 @@ public class ObjectBuilder {
     private final AnnotationResolver resolver = new AnnotationResolver();
     private final Constructors constructors = new Constructors();
     private final Types types = new Types();
-    private final UnsafeAllocator unsafeAllocator = UnsafeAllocator.INSTANCE;
 
     @SuppressWarnings("unchecked")
     public <T> List<T> buildList(@NotNull YamlList yamlList, @NotNull Class<T> clazz) {
@@ -62,12 +61,9 @@ public class ObjectBuilder {
             if (resolver.hasNameAnnotations(constructor)) {
                 return buildByConstructor(yamlMap, constructor);
             } else {
-                T instance = unsafeAllocator.create(clazz);
-                if (instance == null) {
-                    throw new IllegalStateException(clazz + " doesn't have default constructor or" +
-                            " named constructor with params and sun.misc.Unsafe is not available");
-                }
-                return buildByFields(yamlMap, instance);
+                throw new IllegalStateException(clazz + " doesn't have default constructor or" +
+                        " named constructor with params");
+
             }
         }
     }

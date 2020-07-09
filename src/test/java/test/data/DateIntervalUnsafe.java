@@ -2,6 +2,7 @@ package test.data;
 
 import org.dumb.yaml.annotation.DateConverter;
 import org.dumb.yaml.annotation.Name;
+import org.dumb.yaml.annotation.Names;
 
 import java.util.Date;
 
@@ -13,15 +14,11 @@ import java.util.Date;
  */
 public class DateIntervalUnsafe {
 
-    @Name("start_date")
-    @DateConverter("yyyy-MM-dd HH:mm")
     private final Date startDate;
-
-    @Name("end_date")
-    @DateConverter("yyyy-MM-dd HH:mm")
     private final Date endDate;
 
-    public DateIntervalUnsafe(Date startDate, Date endDate) {
+    public DateIntervalUnsafe(@Name("start_date") @DateConverter("yyyy-MM-dd HH:mm") Date startDate,
+                              @Name("end_date")     @DateConverter("yyyy-MM-dd HH:mm") Date endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
     }
