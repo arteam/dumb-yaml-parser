@@ -1,5 +1,7 @@
 package test.data;
 
+import org.dumb.yaml.annotation.Names;
+
 /**
  * Date: 12/22/13
  * Time: 12:26 AM
@@ -11,6 +13,7 @@ public class Server {
     private final String id;
     private final String url;
 
+    @Names({"id", "url"})
     public Server(String id, String url) {
         this.id = id;
         this.url = url;

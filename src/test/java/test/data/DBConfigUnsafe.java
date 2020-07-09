@@ -14,21 +14,18 @@ import java.util.Map;
  */
 public class DBConfigUnsafe {
 
-    @Name("data_bases")
     private final Map<String, Database> db;
 
-    public DBConfigUnsafe(Map<String, Database> db) {
+    public DBConfigUnsafe(@Name("data_bases") Map<String, Database> db) {
         this.db = db;
     }
 
     public static class Database {
 
-        @Name("db_driver")
         private final String driver;
-
         private final String url;
 
-        public Database(String driver, String url) {
+        public Database(@Name("db_driver") String driver, @Name("url") String url) {
             this.driver = driver;
             this.url = url;
         }
