@@ -1,9 +1,9 @@
 dumb-yaml-parser
 ================
 
-Dumb yaml parser/object mapper with support of immutable objects and enums.
+An experimental dumb yaml parser/object mapper with support of immutable objects and enums.
 
-Annotate your domain witn `@Name` annotation. It works for constructor parameters and fields.
+You can annotate your domain objects with the `@Name` annotation. It works with constructor parameters and fields.
 
 ````java
 import org.dumb.yaml.annotation.EnumConverter;
@@ -40,7 +40,7 @@ public class Person {
 
         private String code;
 
-        private Network(String code) {
+        Network(String code) {
             this.code = code;
         }
 
@@ -55,7 +55,7 @@ public class Person {
 }    
 ````
 
-Or use `@Names` annotation. It can be placed on classes and constructors (useful for languages like Kotlin).
+Or you can use the `@Names` annotation. It can be placed on classes and constructors (useful for languages like Kotlin).
 ````java
 import org.dumb.yaml.annotation.EnumConverter;
 import org.dumb.yaml.annotation.Names;
@@ -92,7 +92,7 @@ public class PersonNames {
 
         private String code;
 
-        private Network(String code) {
+        Network(String code) {
             this.code = code;
         }
 
@@ -107,7 +107,8 @@ public class PersonNames {
 }    
 ````
 
-Parse your YAML file
+Parse your YAML file like this
+
 ````java
 import org.dumb.yaml.Yaml;
 import java.io.*;
@@ -117,4 +118,4 @@ public void testPerson() {
 }
 ````
 
-See more examples in [tests] (https://github.com/arteam/dumb-yaml-parser/tree/master/src/test/java)
+See more examples in [tests](https://github.com/arteam/dumb-yaml-parser/tree/master/src/test/java)
