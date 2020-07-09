@@ -26,7 +26,7 @@ enum UnsafeAllocator {
 
     private boolean unsafeAvailable;
 
-    private UnsafeAllocator() {
+    UnsafeAllocator() {
         try {
             Class<?> unsafeClass = Class.forName("sun.misc.Unsafe");
             Field f = unsafeClass.getDeclaredField("theUnsafe");
@@ -41,7 +41,9 @@ enum UnsafeAllocator {
     @SuppressWarnings("unchecked")
     @Nullable
     public <T> T create(@NotNull Class<T> clazz) {
-        if (!unsafeAvailable) return null;
+        if (!unsafeAvailable) {
+            return null;
+        }
         try {
             return (T) allocateInstance.invoke(theUnsafe, clazz);
         } catch (Exception e) {

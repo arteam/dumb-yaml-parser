@@ -23,9 +23,9 @@ import java.util.Map;
  */
 public class Yaml {
 
-    private YamlParser yamlParser = new YamlParser();
-    private ObjectBuilder objectBuilder = new ObjectBuilder();
-    private StreamAdapter streamAdapter = new StreamAdapter();
+    private final YamlParser yamlParser = new YamlParser();
+    private final ObjectBuilder objectBuilder = new ObjectBuilder();
+    private final StreamAdapter streamAdapter = new StreamAdapter();
 
     @NotNull
     public YamlMap parse(@Nullable String source) {

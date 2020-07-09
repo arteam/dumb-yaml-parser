@@ -13,7 +13,7 @@ import java.util.Map;
 public class YamlMap implements YamlObject {
 
     @NotNull
-    private Map<String, YamlObject> map;
+    private final Map<String, YamlObject> map;
 
     public YamlMap(@NotNull Map<String, YamlObject> map) {
         this.map = map;

@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 /**
  * Date: 11/19/13
  * Time: 9:51 PM
@@ -19,7 +20,7 @@ import java.util.Date;
 public class YamlPrimitive implements YamlObject {
 
     @NotNull
-    private String value;
+    private final String value;
 
     public YamlPrimitive(@NotNull String value) {
         this.value = value;
@@ -132,7 +133,9 @@ public class YamlPrimitive implements YamlObject {
     @Nullable
     @SuppressWarnings("unchecked")
     private <T extends Annotation> T getAnnotation(@Nullable Annotation[] array, @NotNull Class<T> clazz) {
-        if (array == null) return null;
+        if (array == null) {
+            return null;
+        }
         for (Annotation a : array) {
             if (a.annotationType().equals(clazz)) {
                 return (T) a;
